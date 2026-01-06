@@ -1,5 +1,8 @@
 <script lang="ts">
-	// Home screen (2×2) — реалізація далі
+	import type { PageData } from './$types';
+	export let data: PageData;
 </script>
 
-<!-- Home screen placeholder -->
+<h1>Home</h1>
+<p>{data.items.length} items loaded</p>
+<p>{data.cards.length} cards configured</p>
