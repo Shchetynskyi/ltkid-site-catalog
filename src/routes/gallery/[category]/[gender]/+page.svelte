@@ -1,3 +1,7 @@
 <script lang="ts">
-	// placeholder — реалізація далі
+	import type { PageData } from './$types';
+	export let data: PageData;
 </script>
+
+<h1>Gallery</h1>
+<p>{data.items.length} items</p>
