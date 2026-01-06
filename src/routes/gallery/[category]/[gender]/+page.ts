@@ -1,12 +1,17 @@
 import type { PageLoad } from './$types';
 import { fetchCatalog } from '$lib/catalog/catalog.service';
-import { HOME_CARDS } from '$lib/home/home.config';
+import { filterByCategoryAndGender } from '$lib/catalog/catalog.selectors';
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, params }) => {
 	const items = await fetchCatalog(fetch);
 
-	return {
+	const filtered = filterByCategoryAndGender(
 		items,
-		cards: HOME_CARDS
+		params.category as any,
+		params.gender as any
+	);
+
+	return {
+		items: filtered
 	};
 };
