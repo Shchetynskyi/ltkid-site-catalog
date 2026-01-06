@@ -3,29 +3,36 @@
   import type { PageData } from './$types';
   export let data: PageData;
 
-  // helper: wrap image url through server proxy
-  function proxied(url: string) {
-    return `/api/img?url=${encodeURIComponent(url)}`;
-  }
+  let showFullscreen = false;
 </script>
 
 {#if data.item}
   <section>
     <h1>{data.item.marketingTitle || data.item.modelId}</h1>
-
     <p>{data.item.modelId}</p>
 
     {#if data.item.mainImage}
-      <img
-        src={proxied(data.item.mainImage)}
-        alt={data.item.marketingTitle || data.item.modelId}
-        style="width: 100%; max-width: 600px; height: auto;"
-      />
+      <button
+        type="button"
+        on:click={() => (showFullscreen = true)}
+        style="
+          border: none;
+          padding: 0;
+          background: none;
+          cursor: zoom-in;
+        "
+        aria-label="Збільшити фото"
+      >
+        <img
+          src={data.item.mainImage}
+          alt={data.item.marketingTitle || data.item.modelId}
+          style="width: 100%; max-width: 600px; height: auto;"
+        />
+      </button>
+      <p style="font-size: 12px; opacity: 0.7;">Натисніть, щоб збільшити</p>
     {/if}
 
-    <p>
-      Ціна: {data.item.price} грн
-    </p>
+    <p>Ціна: {data.item.price} грн</p>
 
     {#if data.item.tryOn || data.item.aiPreview}
       <div>
@@ -38,6 +45,32 @@
       </div>
     {/if}
   </section>
+
+  {#if showFullscreen}
+    <button
+      type="button"
+      on:click={() => (showFullscreen = false)}
+      aria-label="Закрити перегляд"
+      style="
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        border: none;
+        padding: 0;
+        cursor: zoom-out;
+      "
+    >
+      <img
+        src={data.item.mainImage}
+        alt={data.item.marketingTitle || data.item.modelId}
+        style="max-width: 95%; max-height: 95%;"
+      />
+    </button>
+  {/if}
 {:else}
   <p>Модель не знайдена</p>
 {/if}
