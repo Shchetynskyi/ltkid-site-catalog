@@ -16,8 +16,6 @@ function isTrue(v: unknown): boolean {
 function toNumberOrNull(v: unknown): number | null {
   const s = toStringSafe(v).trim();
   if (!s) return null;
-
-  // allow "140,5" and "140.5"
   const normalized = s.replace(',', '.');
   const n = Number(normalized);
   return Number.isFinite(n) ? n : null;
@@ -26,23 +24,38 @@ function toNumberOrNull(v: unknown): number | null {
 function toPrice(v: unknown): number {
   const s = toStringSafe(v).trim();
   if (!s) return 0;
-
-  // keep digits, comma, dot
   const cleaned = s.replace(/[^\d.,-]/g, '').replace(',', '.');
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : 0;
 }
 
 function isVisible(row: CsvRow): boolean {
-  // SPEC v1.1: Показувати = "Так" OR TRUE
   return isTrue(row['Показувати']);
 }
 
 function hasManufacturerDiopters(row: CsvRow): boolean {
-  // SPEC v1.2: ONLY факт непорожнього поля
   const raw = row['Наявність діоптрій виробника'];
   const s = toStringSafe(raw).trim();
   return s.length > 0;
+}
+
+/**
+ * Google Drive "view" links are NOT direct images.
+ * Use Drive thumbnail endpoint which returns an actual image response.
+ * https://drive.google.com/file/d/<ID>/view -> https://drive.google.com/thumbnail?id=<ID>&sz=w1200
+ */
+function normalizeImageUrl(raw: unknown): string {
+  const url = toStringSafe(raw).trim();
+  if (!url) return '';
+
+  const m1 = url.match(/https?:\/\/drive\.google\.com\/file\/d\/([^/]+)\//i);
+  if (m1?.[1]) return `https://drive.google.com/thumbnail?id=${m1[1]}&sz=w1200`;
+
+  const m2 = url.match(/https?:\/\/drive\.google\.com\/open\?id=([^&]+)/i);
+  if (m2?.[1]) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w1200`;
+
+  // if already direct image URL - keep
+  return url;
 }
 
 export function parseCatalogCsv(csvText: string): CatalogItem[] {
@@ -50,11 +63,6 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
     header: true,
     skipEmptyLines: true
   });
-
-  if (parsed.errors?.length) {
-    // не падаємо, просто повертаємо те, що змогли
-    // (логування — пізніше, щоб не шуміти в проді)
-  }
 
   const rows = (parsed.data ?? []).filter((r) => r && typeof r === 'object');
 
@@ -64,15 +72,15 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
     if (!isVisible(row)) continue;
 
     const modelId = toStringSafe(row['ModelID']).trim();
-    if (!modelId) continue; // без ModelID — рядок непридатний
+    if (!modelId) continue;
 
-    const item: CatalogItem = {
+    items.push({
       modelId,
       marketingTitle: toStringSafe(row['Маркетингова назва']).trim(),
       gender: toStringSafe(row['Стать']).trim(),
 
-      previewImage: toStringSafe(row["Прев’ю"]).trim(),
-      mainImage: toStringSafe(row['Фото (URL)']).trim(),
+      previewImage: normalizeImageUrl(row["Прев’ю"]),
+      mainImage: normalizeImageUrl(row['Фото (URL)']),
 
       price: toPrice(row['Price']),
 
@@ -81,11 +89,8 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
 
       frameWidth: toNumberOrNull(row['Ширина оправи (мм)']),
 
-      // v1.2
       hasManufacturerDiopters: hasManufacturerDiopters(row)
-    };
-
-    items.push(item);
+    });
   }
 
   return items;

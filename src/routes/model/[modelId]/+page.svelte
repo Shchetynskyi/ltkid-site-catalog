@@ -2,6 +2,11 @@
 <script lang="ts">
   import type { PageData } from './$types';
   export let data: PageData;
+
+  // helper: wrap image url through server proxy
+  function proxied(url: string) {
+    return `/api/img?url=${encodeURIComponent(url)}`;
+  }
 </script>
 
 {#if data.item}
@@ -12,9 +17,9 @@
 
     {#if data.item.mainImage}
       <img
-        src={data.item.mainImage}
+        src={proxied(data.item.mainImage)}
         alt={data.item.marketingTitle || data.item.modelId}
-        style="max-width: 100%; height: auto;"
+        style="width: 100%; max-width: 600px; height: auto;"
       />
     {/if}
 
