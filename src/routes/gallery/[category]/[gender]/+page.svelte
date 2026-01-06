@@ -6,20 +6,26 @@
 
 <section>
   <h1>Gallery</h1>
-  <p>{data.items.length} items</p>
 
-  <ul>
-    {#each data.items as item}
-      <li>
-        <a href={`/model/${item.modelId}`}>
-          <div>
+  {#if data.items.length === 0}
+    <p>Немає моделей</p>
+  {:else}
+    <ul style="list-style: none; padding: 0; margin: 0;">
+      {#each data.items as item}
+        <li style="margin-bottom: 16px;">
+          <a href={`/model/${item.modelId}`} style="text-decoration: none; color: inherit;">
+            {#if item.previewImage}
+              <img
+                src={item.previewImage}
+                alt={item.marketingTitle || item.modelId}
+                style="width: 100%; max-width: 300px; height: auto; display: block;"
+              />
+            {/if}
             <strong>{item.marketingTitle || item.modelId}</strong>
-          </div>
-          <div>
-            {item.price} грн
-          </div>
-        </a>
-      </li>
-    {/each}
-  </ul>
+            <div>Ціна: {item.price} грн</div>
+          </a>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 </section>
