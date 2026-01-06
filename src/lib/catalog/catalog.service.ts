@@ -10,3 +10,10 @@ export async function fetchCatalogRaw(): Promise<string> {
 	}
 	return res.text();
 }
+import { parseCatalogCsv } from './catalog.parser';
+import type { CatalogItem } from './catalog.types';
+
+export async function fetchCatalog(): Promise<CatalogItem[]> {
+	const csv = await fetchCatalogRaw();
+	return parseCatalogCsv(csv);
+}
