@@ -17,29 +17,45 @@
     }>;
   };
 
-  let activeRange: FrameWidthRangeKey = 'ALL';
-
   const formatPrice = (value: number | null | undefined) => {
     if (value == null || Number.isNaN(value)) return '';
     return `${Math.round(value)} грн`;
   };
 
+  const readRangeFromUrl = (): FrameWidthRangeKey => {
+    const v = $page.url.searchParams.get('w');
+    if (!v) return 'ALL';
+    const ok = FRAME_WIDTH_RANGES.some((r) => r.key === v);
+    return ok ? (v as FrameWidthRangeKey) : 'ALL';
+  };
+
+  let activeRange: FrameWidthRangeKey = readRangeFromUrl();
+
+  // якщо користувач повернувся назад (з "Дивитись ще") — підхоплюємо w з URL
+  $: activeRange = readRangeFromUrl();
+
   $: visibleItems = filterByFrameWidth(data.items as any, activeRange);
 
+  function setRange(key: FrameWidthRangeKey) {
+    const url = new URL($page.url);
+    if (key === 'ALL') url.searchParams.delete('w');
+    else url.searchParams.set('w', key);
+    goto(url.pathname + url.search, { replaceState: true });
+  }
+
   function showAll() {
-    activeRange = 'ALL';
-    goto($page.url.pathname);
+    setRange('ALL');
   }
 </script>
 
 <section class="gallery">
   <div class="gallery-toolbar" role="region" aria-label="Панель галереї">
-    <div class="filters">
+    <div class="filters" aria-label="Фільтр ширини оправи">
       {#each FRAME_WIDTH_RANGES as r}
         <button
           type="button"
           class:active={activeRange === r.key}
-          on:click={() => (activeRange = r.key)}
+          on:click={() => setRange(r.key)}
           aria-pressed={activeRange === r.key}
         >
           {r.label}
@@ -61,7 +77,7 @@
     {#each visibleItems as item (item.modelId)}
       <a
         class="gallery-card"
-        href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname)}`}
+        href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname + $page.url.search)}`}
       >
         {#if item.previewImage}
           <img
