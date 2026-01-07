@@ -18,10 +18,21 @@
     return `${Math.round(value)} грн`;
   };
 
-  $: from = $page.url.searchParams.get('from') || '/';
+  function safeFrom(): string {
+    const raw = $page.url.searchParams.get('from');
+    if (!raw) return '/';
+    try {
+      const decoded = decodeURIComponent(raw);
+      // allow тільки повернення в галерею
+      if (decoded.startsWith('/gallery/')) return decoded;
+      return '/';
+    } catch {
+      return '/';
+    }
+  }
 
   function goBack() {
-    goto(from);
+    goto(safeFrom());
   }
 </script>
 
