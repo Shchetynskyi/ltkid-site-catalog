@@ -1,6 +1,11 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import {
+    FRAME_WIDTH_RANGES,
+    type FrameWidthRangeKey,
+    filterByFrameWidth
+  } from '$lib/catalog/catalog.selectors';
 
   export let data: {
     items: Array<{
@@ -8,22 +13,40 @@
       marketingTitle: string;
       previewImage?: string;
       price?: number | null;
+      frameWidth?: number | null;
     }>;
   };
+
+  let activeRange: FrameWidthRangeKey = 'ALL';
 
   const formatPrice = (value: number | null | undefined) => {
     if (value == null || Number.isNaN(value)) return '';
     return `${Math.round(value)} грн`;
   };
 
+  $: visibleItems = filterByFrameWidth(data.items as any, activeRange);
+
   function showAll() {
-    // повертаємось у той самий список без query-параметрів
+    activeRange = 'ALL';
     goto($page.url.pathname);
   }
 </script>
 
 <section class="gallery">
   <div class="gallery-toolbar" role="region" aria-label="Панель галереї">
+    <div class="filters">
+      {#each FRAME_WIDTH_RANGES as r}
+        <button
+          type="button"
+          class:active={activeRange === r.key}
+          on:click={() => (activeRange = r.key)}
+          aria-pressed={activeRange === r.key}
+        >
+          {r.label}
+        </button>
+      {/each}
+    </div>
+
     <button
       type="button"
       class="show-all"
@@ -35,7 +58,7 @@
   </div>
 
   <div class="gallery-list">
-    {#each data.items as item (item.modelId)}
+    {#each visibleItems as item (item.modelId)}
       <a
         class="gallery-card"
         href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname)}`}
@@ -67,45 +90,58 @@
     z-index: 5;
     padding: 10px 0;
     backdrop-filter: blur(8px);
+    display: grid;
+    gap: 8px;
   }
-
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filters button {
+    font-weight: 700;
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .filters button.active {
+    background: currentColor;
+    color: white;
+  }
   .show-all {
     font-weight: 800;
     background: none;
     border: 0;
     padding: 0;
     cursor: pointer;
+    align-self: start;
   }
-
   .gallery-list {
     display: grid;
     gap: 12px;
     padding-top: 6px;
   }
-
   .gallery-card {
     display: grid;
     gap: 8px;
     text-decoration: none;
     color: inherit;
   }
-
   .gallery-img {
     width: 100%;
     height: auto;
     display: block;
     border-radius: 12px;
   }
-
   .gallery-meta {
     display: grid;
     gap: 4px;
   }
-
   .gallery-title {
     font-weight: 700;
   }
-
   .gallery-price {
     opacity: 0.8;
   }
