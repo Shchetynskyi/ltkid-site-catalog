@@ -1,17 +1,21 @@
+// src/routes/gallery/[category]/[gender]/+page.ts
 import type { PageLoad } from './$types';
 import { fetchCatalog } from '$lib/catalog/catalog.service';
-import { filterByCategoryAndGender } from '$lib/catalog/catalog.selectors';
+import {
+  filterByCategoryAndGender,
+  type Category,
+  type Gender
+} from '$lib/catalog/catalog.selectors';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const items = await fetchCatalog(fetch);
+  const items = await fetchCatalog(fetch);
 
-	const filtered = filterByCategoryAndGender(
-		items,
-		params.category as any,
-		params.gender as any
-	);
+  const category = params.category as Category;
+  const gender = params.gender as Gender;
 
-	return {
-		items: filtered
-	};
+  const filtered = filterByCategoryAndGender(items, category, gender);
+
+  return {
+    items: filtered
+  };
 };
