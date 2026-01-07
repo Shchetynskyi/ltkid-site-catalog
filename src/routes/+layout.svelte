@@ -1,20 +1,18 @@
-<!-- src/routes/+layout.svelte -->
 <script lang="ts">
-  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { managerLink } from '$lib/config/links';
 </script>
 
-<header>
-  <div>
-    <a href="/">Початок</a>
-  </div>
+<header class="site-header">
+  <a class="home-link" href="/">Початок</a>
 
-  <div>
-    <a href={MANAGER_MESSENGER_URL} target="_blank" rel="noopener">
-      Запитати менеджера
-    </a>
-  </div>
+  <a
+    class="manager-link"
+    href={managerLink}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Запитати менеджера
+  </a>
 </header>
 
-<main>
-  <slot />
-</main>
+<slot />
