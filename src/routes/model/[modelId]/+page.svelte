@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
 
   export let data: {
     item: {
@@ -18,25 +19,26 @@
   };
 
   $: from = $page.url.searchParams.get('from') || '/';
+
+  function goBack() {
+    goto(from);
+  }
 </script>
 
 <section class="model">
-  <h1 class="model-title">{data.item.marketingTitle || data.item.modelId}</h1>
-  <div class="model-id">{data.item.modelId}</div>
+  <h1>{data.item.marketingTitle || data.item.modelId}</h1>
+  <div>{data.item.modelId}</div>
 
   {#if data.item.mainImage}
-    <div class="model-photo">
-      <!-- тут залишайте ваш існуючий fullscreen/a11y механізм як був у baseline -->
-      <img src={data.item.mainImage} alt={data.item.marketingTitle || data.item.modelId} />
-    </div>
+    <img src={data.item.mainImage} alt={data.item.marketingTitle || data.item.modelId} />
   {/if}
 
   {#if data.item.price != null}
-    <div class="model-price">{formatPrice(data.item.price)}</div>
+    <div>{formatPrice(data.item.price)}</div>
   {/if}
 
   {#if data.item.tryOn || data.item.aiPreview}
-    <div class="model-actions">
+    <div>
       {#if data.item.tryOn}
         <button type="button">Приміряти на себе</button>
       {/if}
@@ -46,46 +48,7 @@
     </div>
   {/if}
 
-  <div class="model-more">
-    <a class="model-more-link" href={from}>Дивитись ще</a>
-  </div>
+  <button type="button" on:click={goBack}>
+    Дивитись ще
+  </button>
 </section>
-
-<style>
-  /* Мінімально, якщо у вас вже є глобальні стилі — можна прибрати цей блок */
-  .model {
-    display: grid;
-    gap: 12px;
-  }
-  .model-title {
-    font-size: 24px;
-    font-weight: 800;
-    margin: 0;
-  }
-  .model-id {
-    opacity: 0.7;
-  }
-  .model-photo img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 12px;
-  }
-  .model-price {
-    font-size: 22px;
-    font-weight: 800;
-  }
-  .model-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .model-more {
-    padding-top: 8px;
-  }
-  .model-more-link {
-    display: inline-block;
-    font-weight: 800;
-    text-decoration: none;
-  }
-</style>
