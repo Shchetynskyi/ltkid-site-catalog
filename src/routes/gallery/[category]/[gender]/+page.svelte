@@ -31,8 +31,11 @@
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
 
-  // якщо користувач повернувся назад (з "Дивитись ще") — підхоплюємо w з URL
-  $: activeRange = readRangeFromUrl();
+  // Оновлюємо activeRange ТІЛЬКИ коли реально змінився URL
+  $: {
+    const next = readRangeFromUrl();
+    if (next !== activeRange) activeRange = next;
+  }
 
   $: visibleItems = filterByFrameWidth(data.items as any, activeRange);
 
@@ -40,6 +43,8 @@
     const url = new URL($page.url);
     if (key === 'ALL') url.searchParams.delete('w');
     else url.searchParams.set('w', key);
+
+    // replaceState щоб не засмічувати history кожним кліком фільтра
     goto(url.pathname + url.search, { replaceState: true });
   }
 
