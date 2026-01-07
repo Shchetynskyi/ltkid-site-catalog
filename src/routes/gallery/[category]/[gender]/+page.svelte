@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
 
   export let data: {
     items: Array<{
@@ -15,14 +16,22 @@
     return `${Math.round(value)} грн`;
   };
 
-  $: showAllHref = $page.url.pathname; // скидає всі майбутні query-параметри
+  function showAll() {
+    // повертаємось у той самий список без query-параметрів
+    goto($page.url.pathname);
+  }
 </script>
 
 <section class="gallery">
   <div class="gallery-toolbar" role="region" aria-label="Панель галереї">
-    <a class="show-all" href={showAllHref} aria-label="Показати всі моделі">
+    <button
+      type="button"
+      class="show-all"
+      on:click={showAll}
+      aria-label="Показати всі моделі"
+    >
       Показати всі
-    </a>
+    </button>
   </div>
 
   <div class="gallery-list">
@@ -32,7 +41,12 @@
         href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname)}`}
       >
         {#if item.previewImage}
-          <img class="gallery-img" src={item.previewImage} alt={item.marketingTitle || item.modelId} loading="lazy" />
+          <img
+            class="gallery-img"
+            src={item.previewImage}
+            alt={item.marketingTitle || item.modelId}
+            loading="lazy"
+          />
         {/if}
 
         <div class="gallery-meta">
@@ -56,10 +70,11 @@
   }
 
   .show-all {
-    display: inline-block;
     font-weight: 800;
-    text-decoration: none;
-    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
   }
 
   .gallery-list {
