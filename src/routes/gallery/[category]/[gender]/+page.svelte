@@ -6,6 +6,7 @@
     type FrameWidthRangeKey,
     filterByFrameWidth
   } from '$lib/catalog/catalog.selectors';
+  import { onMount } from 'svelte';
 
   export let data: {
     items: Array<{
@@ -21,6 +22,8 @@
     if (value == null || Number.isNaN(value)) return '';
     return `${Math.round(value)} грн`;
   };
+
+  const keyForScroll = () => `scroll:${$page.url.pathname}${$page.url.search}`;
 
   const readRangeFromUrl = (): FrameWidthRangeKey => {
     const v = $page.url.searchParams.get('w');
@@ -48,6 +51,19 @@
   function showAll() {
     setRange('ALL');
   }
+
+  function rememberScroll() {
+    sessionStorage.setItem(keyForScroll(), String(window.scrollY));
+  }
+
+  onMount(() => {
+    const saved = sessionStorage.getItem(keyForScroll());
+    if (saved) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, Number(saved));
+      });
+    }
+  });
 </script>
 
 <section class="gallery">
@@ -93,6 +109,7 @@
         <a
           class="gallery-card"
           href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname + $page.url.search)}`}
+          on:click={rememberScroll}
         >
           {#if item.previewImage}
             <img
