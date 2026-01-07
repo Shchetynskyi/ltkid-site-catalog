@@ -5,7 +5,7 @@ import type { CatalogItem } from './catalog.types';
 export type Category = 'ready' | 'frames';
 export type Gender = 'жіноча' | 'чоловіча';
 
-// ====== Frame width filter (UX v2.0) ======
+// ====== Frame width filter (UX v2.x) ======
 export type FrameWidthRangeKey = 'ALL' | 'S' | 'M' | 'L' | 'XL';
 
 export const FRAME_WIDTH_RANGES: Array<{
@@ -35,7 +35,9 @@ export function getCategory(item: CatalogItem): Category {
 }
 
 // ====== Gender helpers ======
-export function normalizeGender(gender: string): 'жіноча' | 'чоловіча' | 'унісекс' | 'unknown' {
+export function normalizeGender(
+  gender: string
+): 'жіноча' | 'чоловіча' | 'унісекс' | 'unknown' {
   const g = (gender || '').trim().toLowerCase();
   if (g === 'жіноча') return 'жіноча';
   if (g === 'чоловіча') return 'чоловіча';
@@ -50,7 +52,11 @@ export function matchesGenderForGallery(item: CatalogItem, galleryGender: Gender
 }
 
 // ====== Existing selector used by gallery load ======
-export function filterByCategoryAndGender(items: CatalogItem[], category: Category, gender: Gender): CatalogItem[] {
+export function filterByCategoryAndGender(
+  items: CatalogItem[],
+  category: Category,
+  gender: Gender
+): CatalogItem[] {
   const byCategory = items.filter((item) => getCategory(item) === category);
   return byCategory.filter((item) => matchesGenderForGallery(item, gender));
 }
@@ -66,9 +72,18 @@ export function inFrameWidthRange(
   return true;
 }
 
-export function filterByFrameWidth(items: CatalogItem[], rangeKey: FrameWidthRangeKey): CatalogItem[] {
+export type FrameWidthItem = {
+  frameWidth?: number | null;
+};
+
+export function filterByFrameWidth<T extends FrameWidthItem>(
+  items: T[],
+  rangeKey: FrameWidthRangeKey
+): T[] {
   if (rangeKey === 'ALL') return items;
+
   const range = FRAME_WIDTH_RANGES.find((r) => r.key === rangeKey);
   if (!range) return items;
+
   return items.filter((item) => inFrameWidthRange(item.frameWidth ?? null, range));
 }
