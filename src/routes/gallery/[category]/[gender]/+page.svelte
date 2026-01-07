@@ -53,12 +53,8 @@
     setRange('ALL');
   }
 
-  function rememberScrollNow() {
-    sessionStorage.setItem(keyForScroll(), String(window.scrollY));
-  }
-
   onMount(() => {
-    // 1) restore
+    // restore
     const saved = sessionStorage.getItem(keyForScroll());
     if (saved) {
       requestAnimationFrame(() => {
@@ -66,13 +62,13 @@
       });
     }
 
-    // 2) persist continuously (for F5 / hard reload)
-    const onScroll = () => rememberScrollNow();
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', onScroll);
+    // persist continuously (for F5 / hard reload)
+    const onScroll = () => {
+      sessionStorage.setItem(keyForScroll(), String(window.scrollY));
     };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   });
 </script>
 
