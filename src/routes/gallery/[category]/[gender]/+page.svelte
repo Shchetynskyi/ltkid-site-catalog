@@ -53,17 +53,26 @@
     setRange('ALL');
   }
 
-  function rememberScroll() {
+  function rememberScrollNow() {
     sessionStorage.setItem(keyForScroll(), String(window.scrollY));
   }
 
   onMount(() => {
+    // 1) restore
     const saved = sessionStorage.getItem(keyForScroll());
     if (saved) {
       requestAnimationFrame(() => {
         window.scrollTo(0, Number(saved));
       });
     }
+
+    // 2) persist continuously (for F5 / hard reload)
+    const onScroll = () => rememberScrollNow();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+    };
   });
 </script>
 
@@ -110,7 +119,6 @@
         <a
           class="gallery-card"
           href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname + $page.url.search)}`}
-          on:click={rememberScroll}
         >
           {#if item.previewImage}
             <img
@@ -199,7 +207,7 @@
   .gallery-list {
     display: grid;
     gap: 12px;
-    padding-top: 12px; /* ключове: відступ після sticky-панелі */
+    padding-top: 12px;
   }
   .gallery-card {
     display: grid;
