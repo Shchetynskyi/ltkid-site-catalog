@@ -23,7 +23,6 @@
     if (!raw) return '/';
     try {
       const decoded = decodeURIComponent(raw);
-      // allow тільки повернення в галерею
       if (decoded.startsWith('/gallery/')) return decoded;
       return '/';
     } catch {
@@ -59,7 +58,11 @@
     </div>
   {/if}
 
-  <button type="button" on:click={goBack}>
+  <button
+    type="button"
+    on:click={goBack}
+    aria-label="Повернутися до списку моделей"
+  >
     Дивитись ще
   </button>
 </section>
