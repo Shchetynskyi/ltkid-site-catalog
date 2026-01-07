@@ -31,7 +31,6 @@
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
 
-  // Оновлюємо activeRange ТІЛЬКИ коли реально змінився URL
   $: {
     const next = readRangeFromUrl();
     if (next !== activeRange) activeRange = next;
@@ -43,8 +42,6 @@
     const url = new URL($page.url);
     if (key === 'ALL') url.searchParams.delete('w');
     else url.searchParams.set('w', key);
-
-    // replaceState щоб не засмічувати history кожним кліком фільтра
     goto(url.pathname + url.search, { replaceState: true });
   }
 
@@ -66,6 +63,10 @@
           {r.label}
         </button>
       {/each}
+    </div>
+
+    <div class="results-count" aria-live="polite">
+      Показано: <strong>{visibleItems.length}</strong>
     </div>
 
     <button
@@ -130,6 +131,10 @@
   .filters button.active {
     background: currentColor;
     color: white;
+  }
+  .results-count {
+    font-size: 14px;
+    opacity: 0.85;
   }
   .show-all {
     font-weight: 800;
