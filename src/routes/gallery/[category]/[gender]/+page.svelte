@@ -177,6 +177,7 @@
     padding: 18px 0;
     display: grid;
     gap: 10px;
+    margin-top: 10px;
   }
   .empty-title {
     font-weight: 800;
@@ -198,7 +199,7 @@
   .gallery-list {
     display: grid;
     gap: 12px;
-    padding-top: 6px;
+    padding-top: 12px; /* ключове: відступ після sticky-панелі */
   }
   .gallery-card {
     display: grid;
