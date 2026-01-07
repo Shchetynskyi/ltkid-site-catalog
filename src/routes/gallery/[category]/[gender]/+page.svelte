@@ -79,30 +79,40 @@
     </button>
   </div>
 
-  <div class="gallery-list">
-    {#each visibleItems as item (item.modelId)}
-      <a
-        class="gallery-card"
-        href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname + $page.url.search)}`}
-      >
-        {#if item.previewImage}
-          <img
-            class="gallery-img"
-            src={item.previewImage}
-            alt={item.marketingTitle || item.modelId}
-            loading="lazy"
-          />
-        {/if}
-
-        <div class="gallery-meta">
-          <div class="gallery-title">{item.marketingTitle || item.modelId}</div>
-          {#if item.price != null}
-            <div class="gallery-price">{formatPrice(item.price)}</div>
+  {#if visibleItems.length === 0}
+    <div class="empty" role="status" aria-live="polite">
+      <div class="empty-title">Нічого не знайдено</div>
+      <div class="empty-text">Спробуйте інший діапазон ширини або покажіть усі моделі.</div>
+      <button type="button" class="empty-btn" on:click={showAll}>
+        Показати всі
+      </button>
+    </div>
+  {:else}
+    <div class="gallery-list">
+      {#each visibleItems as item (item.modelId)}
+        <a
+          class="gallery-card"
+          href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname + $page.url.search)}`}
+        >
+          {#if item.previewImage}
+            <img
+              class="gallery-img"
+              src={item.previewImage}
+              alt={item.marketingTitle || item.modelId}
+              loading="lazy"
+            />
           {/if}
-        </div>
-      </a>
-    {/each}
-  </div>
+
+          <div class="gallery-meta">
+            <div class="gallery-title">{item.marketingTitle || item.modelId}</div>
+            {#if item.price != null}
+              <div class="gallery-price">{formatPrice(item.price)}</div>
+            {/if}
+          </div>
+        </a>
+      {/each}
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -144,6 +154,29 @@
     cursor: pointer;
     align-self: start;
   }
+
+  .empty {
+    padding: 18px 0;
+    display: grid;
+    gap: 10px;
+  }
+  .empty-title {
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .empty-text {
+    opacity: 0.85;
+  }
+  .empty-btn {
+    justify-self: start;
+    font-weight: 800;
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+
   .gallery-list {
     display: grid;
     gap: 12px;
