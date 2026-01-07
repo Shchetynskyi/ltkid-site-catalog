@@ -45,7 +45,8 @@
     const url = new URL($page.url);
     if (key === 'ALL') url.searchParams.delete('w');
     else url.searchParams.set('w', key);
-    goto(url.pathname + url.search, { replaceState: true });
+
+    goto(url.pathname + url.search, { replaceState: true, noScroll: true });
   }
 
   function showAll() {
