@@ -13,7 +13,6 @@
   }
 
   function buildManagerUrl(pathname: string): string {
-    // якщо ми на сторінці моделі: /model/<id>
     const match = pathname.match(/^\/model\/([^/]+)$/);
     const modelId = match?.[1];
 
@@ -45,9 +44,9 @@
     href={managerUrl}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label="Запитати менеджера у Messenger"
+    aria-label="Звʼязатися з менеджером у Messenger"
   >
-    Запитати менеджера
+    Звʼязатися з менеджером
   </a>
 </header>
 
