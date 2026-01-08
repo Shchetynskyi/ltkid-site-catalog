@@ -32,3 +32,24 @@
 - правило Показувати = Так
 - URL-схема
 - scroll-механіка
+
+## 2026-01-08 — Technical cleanup complete
+
+- Scope: feature/catalog-core
+- UX: frozen (no changes)
+- Cleanup:
+  - catalog/*
+  - home config
+  - utils
+  - routes
+- TypeScript: no `any`, explicit types
+- Checks: npm run check — OK, npm run build — OK
+- State: working tree clean
+
+## Messenger CTA — ACTUAL SNAPSHOT
+
+- Header CTA **“Зв’язатися з менеджером”** присутня на всіх сторінках
+- На сторінці моделі передається `ref=site_catalog__model_<modelId>`
+- Дубль CTA на сторінці моделі прибраний
+- Канал комунікації з клієнтом: **Messenger (ManyChat Entry Point)**
+
