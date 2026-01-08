@@ -1,35 +1,36 @@
+<!-- src/routes/gallery/[category]/[gender]/+page.svelte -->
 <script lang="ts">
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
+
   import {
     FRAME_WIDTH_RANGES,
     type FrameWidthRangeKey,
-    filterByFrameWidth
+    filterByFrameWidth,
+    type FrameWidthItem
   } from '$lib/catalog/catalog.selectors';
-  import { onMount } from 'svelte';
   import { galleryScrollKey } from '$lib/utils/scroll';
 
-  export let data: {
-    items: Array<{
-      modelId: string;
-      marketingTitle: string;
-      previewImage?: string;
-      price?: number | null;
-      frameWidth?: number | null;
-    }>;
+  type GalleryItem = FrameWidthItem & {
+    modelId: string;
+    marketingTitle: string;
+    previewImage?: string;
+    price?: number | null;
   };
 
-  const formatPrice = (value: number | null | undefined) => {
+  export let data: { items: GalleryItem[] };
+
+  function formatPrice(value: number | null | undefined): string {
     if (value == null || Number.isNaN(value)) return '';
     return `${Math.round(value)} грн`;
-  };
+  }
 
-  const readRangeFromUrl = (): FrameWidthRangeKey => {
+  function readRangeFromUrl(): FrameWidthRangeKey {
     const v = $page.url.searchParams.get('w');
     if (!v) return 'ALL';
-    const ok = FRAME_WIDTH_RANGES.some((r) => r.key === v);
-    return ok ? (v as FrameWidthRangeKey) : 'ALL';
-  };
+    return FRAME_WIDTH_RANGES.some((r) => r.key === v) ? (v as FrameWidthRangeKey) : 'ALL';
+  }
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
 
@@ -38,10 +39,9 @@
     if (next !== activeRange) activeRange = next;
   }
 
-  // ⬇️ без any
   $: visibleItems = filterByFrameWidth(data.items, activeRange);
 
-  function setRange(key: FrameWidthRangeKey) {
+  function setRange(key: FrameWidthRangeKey): void {
     const url = new URL($page.url);
     if (key === 'ALL') url.searchParams.delete('w');
     else url.searchParams.set('w', key);
@@ -49,7 +49,7 @@
     goto(url.pathname + url.search, { replaceState: true, noScroll: true });
   }
 
-  function showAll() {
+  function showAll(): void {
     setRange('ALL');
   }
 
@@ -58,12 +58,10 @@
 
     const saved = sessionStorage.getItem(key);
     if (saved) {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, Number(saved));
-      });
+      requestAnimationFrame(() => window.scrollTo(0, Number(saved)));
     }
 
-    const onScroll = () => {
+    const onScroll = (): void => {
       sessionStorage.setItem(key, String(window.scrollY));
     };
 
@@ -104,7 +102,9 @@
   {#if visibleItems.length === 0}
     <div class="empty" role="status" aria-live="polite">
       <div class="empty-title">Нічого не знайдено</div>
-      <div class="empty-text">Спробуйте інший діапазон ширини або покажіть усі моделі.</div>
+      <div class="empty-text">
+        Спробуйте інший діапазон ширини або покажіть усі моделі.
+      </div>
       <button type="button" class="empty-btn" on:click={showAll}>
         Показати всі
       </button>
@@ -114,7 +114,9 @@
       {#each visibleItems as item (item.modelId)}
         <a
           class="gallery-card"
-          href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent($page.url.pathname + $page.url.search)}`}
+          href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent(
+            $page.url.pathname + $page.url.search
+          )}`}
         >
           {#if item.previewImage}
             <img
