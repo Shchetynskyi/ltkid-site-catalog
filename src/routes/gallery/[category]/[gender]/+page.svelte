@@ -32,11 +32,22 @@
     return FRAME_WIDTH_RANGES.some((r) => r.key === v) ? (v as FrameWidthRangeKey) : 'ALL';
   }
 
+  function readNoticeFromUrl(): string | null {
+    const n = $page.url.searchParams.get('notice');
+    return n ? n : null;
+  }
+
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
+  let notice: string | null = readNoticeFromUrl();
 
   $: {
     const next = readRangeFromUrl();
     if (next !== activeRange) activeRange = next;
+  }
+
+  $: {
+    const nextNotice = readNoticeFromUrl();
+    if (nextNotice !== notice) notice = nextNotice;
   }
 
   $: visibleItems = filterByFrameWidth(data.items, activeRange);
@@ -54,6 +65,16 @@
   }
 
   onMount(() => {
+    // If user was redirected here because model was not found,
+    // we must show the actual catalog (clear width filter).
+    const url = new URL($page.url);
+    const n = url.searchParams.get('notice');
+
+    if (n === 'model_not_found' && url.searchParams.has('w')) {
+      url.searchParams.delete('w');
+      goto(url.pathname + url.search, { replaceState: true, noScroll: true });
+    }
+
     const key = galleryScrollKey($page);
 
     const saved = sessionStorage.getItem(key);
@@ -71,6 +92,12 @@
 </script>
 
 <section class="gallery">
+  {#if notice === 'model_not_found'}
+    <div class="notice" role="status" aria-live="polite">
+      Модель не знайдена. Показуємо актуальний каталог.
+    </div>
+  {/if}
+
   <div class="gallery-toolbar" role="region" aria-label="Панель галереї">
     <div class="filters" aria-label="Фільтр ширини оправи">
       {#each FRAME_WIDTH_RANGES as r}
@@ -140,6 +167,14 @@
 </section>
 
 <style>
+  .notice {
+    margin: 8px 0 10px;
+    padding: 10px 12px;
+    border: 1px solid currentColor;
+    border-radius: 12px;
+    font-weight: 800;
+  }
+
   .gallery-toolbar {
     position: sticky;
     top: 0;
