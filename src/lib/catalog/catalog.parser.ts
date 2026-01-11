@@ -44,8 +44,7 @@ function isVisible(row: CsvRow): boolean {
 }
 
 function hasManufacturerDiopters(row: CsvRow): boolean {
-  const s = toStringSafe(row['Наявність діоптрій виробника']).trim();
-  return s.length > 0;
+  return toBoolean(row['Наявність діоптрій виробника']);
 }
 
 function extractDriveFileId(url: string): string | null {
