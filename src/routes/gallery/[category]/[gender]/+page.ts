@@ -15,7 +15,14 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
   const filtered = filterByCategoryAndGender(items, category, gender);
 
-  return {
-    items: filtered
-  };
+  // Return only fields used by gallery UI + always include frameWidth
+  const mapped = filtered.map((i) => ({
+    modelId: i.modelId,
+    marketingTitle: i.marketingTitle,
+    previewImage: i.previewImage,
+    price: i.price,
+    frameWidth: i.frameWidth ?? null
+  }));
+
+  return { items: mapped };
 };
