@@ -33,18 +33,13 @@
   }
 
   function readNoticeFromUrl(): string | null {
-    const n = $page.url.searchParams.get('notice');
-    return n ? n : null;
+    return $page.url.searchParams.get('notice');
   }
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
   let notice: string | null = readNoticeFromUrl();
 
-  $: {
-    const next = readRangeFromUrl();
-    if (next !== activeRange) activeRange = next;
-  }
-
+  // notice can stay reactive (safe)
   $: {
     const nextNotice = readNoticeFromUrl();
     if (nextNotice !== notice) notice = nextNotice;
@@ -53,6 +48,9 @@
   $: visibleItems = filterByFrameWidth(data.items, activeRange);
 
   function setRange(key: FrameWidthRangeKey): void {
+    // IMPORTANT: state first (instant UI + filtering)
+    activeRange = key;
+
     const url = new URL($page.url);
     if (key === 'ALL') url.searchParams.delete('w');
     else url.searchParams.set('w', key);
@@ -64,77 +62,100 @@
     setRange('ALL');
   }
 
+  function onKeyActivate(e: KeyboardEvent, fn: () => void): void {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fn();
+    }
+  }
+
   onMount(() => {
-    // If user was redirected here because model was not found,
-    // we must show the actual catalog (clear width filter).
+    // initial sync
+    activeRange = readRangeFromUrl();
+
+    // back/forward sync
+    const onPopState = (): void => {
+      activeRange = readRangeFromUrl();
+    };
+    window.addEventListener('popstate', onPopState);
+
+    // model_not_found -> clear width filter
     const url = new URL($page.url);
     const n = url.searchParams.get('notice');
-
     if (n === 'model_not_found' && url.searchParams.has('w')) {
       url.searchParams.delete('w');
+      activeRange = 'ALL';
       goto(url.pathname + url.search, { replaceState: true, noScroll: true });
     }
 
     const key = galleryScrollKey($page);
-
     const saved = sessionStorage.getItem(key);
-    if (saved) {
-      requestAnimationFrame(() => window.scrollTo(0, Number(saved)));
-    }
+    if (saved) requestAnimationFrame(() => window.scrollTo(0, Number(saved)));
 
-    const onScroll = (): void => {
-      sessionStorage.setItem(key, String(window.scrollY));
-    };
-
+    const onScroll = () => sessionStorage.setItem(key, String(window.scrollY));
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('scroll', onScroll);
+    };
   });
 </script>
 
 <section class="gallery">
   {#if notice === 'model_not_found'}
-    <div class="notice" role="status" aria-live="polite">
+    <div class="notice">
       Модель не знайдена. Показуємо актуальний каталог.
     </div>
   {/if}
 
-  <div class="gallery-toolbar" role="region" aria-label="Панель галереї">
-    <div class="filters" aria-label="Фільтр ширини оправи">
-      {#each FRAME_WIDTH_RANGES as r}
-        <button
-          type="button"
-          class:active={activeRange === r.key}
-          on:click={() => setRange(r.key)}
+  <div class="gallery-toolbar">
+    <div class="filters">
+      {#each FRAME_WIDTH_RANGES as r (r.key)}
+        <div
+          role="button"
+          tabindex="0"
+          class="filter-item"
+          class:selected={activeRange === r.key}
           aria-pressed={activeRange === r.key}
+          on:click={() => setRange(r.key)}
+          on:keydown={(e) => onKeyActivate(e, () => setRange(r.key))}
         >
           {r.label}
-        </button>
+        </div>
       {/each}
     </div>
 
-    <div class="results-count" aria-live="polite">
+    <div class="results-count">
       Показано: <strong>{visibleItems.length}</strong>
     </div>
 
-    <button
-      type="button"
+    <div
+      role="button"
+      tabindex="0"
       class="show-all"
       on:click={showAll}
-      aria-label="Показати всі моделі"
+      on:keydown={(e) => onKeyActivate(e, showAll)}
     >
       Показати всі
-    </button>
+    </div>
   </div>
 
   {#if visibleItems.length === 0}
-    <div class="empty" role="status" aria-live="polite">
+    <div class="empty">
       <div class="empty-title">Нічого не знайдено</div>
       <div class="empty-text">
         Спробуйте інший діапазон ширини або покажіть усі моделі.
       </div>
-      <button type="button" class="empty-btn" on:click={showAll}>
+      <div
+        role="button"
+        tabindex="0"
+        class="empty-btn"
+        on:click={showAll}
+        on:keydown={(e) => onKeyActivate(e, showAll)}
+      >
         Показати всі
-      </button>
+      </div>
     </div>
   {:else}
     <div class="gallery-list">
@@ -184,57 +205,38 @@
     display: grid;
     gap: 8px;
   }
+
   .filters {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
   }
-  .filters button {
+
+  .filter-item {
     font-weight: 700;
-    background: none;
-    border: 1px solid currentColor;
+    border: 1px solid #000;
     border-radius: 999px;
     padding: 4px 10px;
     cursor: pointer;
+    user-select: none;
+    background: transparent;
+    color: #000;
   }
-  .filters button.active {
-    background: currentColor;
-    color: white;
+
+  .filter-item.selected {
+    background: #000;
+    color: #fff;
   }
+
   .results-count {
     font-size: 14px;
     opacity: 0.85;
   }
+
   .show-all {
     font-weight: 800;
-    background: none;
-    border: 0;
-    padding: 0;
     cursor: pointer;
-    align-self: start;
-  }
-
-  .empty {
-    padding: 18px 0;
-    display: grid;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  .empty-title {
-    font-weight: 800;
-    font-size: 18px;
-  }
-  .empty-text {
-    opacity: 0.85;
-  }
-  .empty-btn {
-    justify-self: start;
-    font-weight: 800;
-    background: none;
-    border: 1px solid currentColor;
-    border-radius: 999px;
-    padding: 8px 14px;
-    cursor: pointer;
+    user-select: none;
   }
 
   .gallery-list {
@@ -242,26 +244,38 @@
     gap: 12px;
     padding-top: 12px;
   }
+
   .gallery-card {
     display: grid;
     gap: 8px;
     text-decoration: none;
     color: inherit;
   }
+
   .gallery-img {
     width: 100%;
-    height: auto;
-    display: block;
     border-radius: 12px;
   }
-  .gallery-meta {
-    display: grid;
-    gap: 4px;
-  }
+
   .gallery-title {
     font-weight: 700;
   }
+
   .gallery-price {
     opacity: 0.8;
+  }
+
+  .empty {
+    padding: 18px 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .empty-btn {
+    border: 1px solid #000;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-weight: 800;
+    cursor: pointer;
   }
 </style>
