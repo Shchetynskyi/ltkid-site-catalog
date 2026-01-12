@@ -53,3 +53,11 @@
 - Дубль CTA на сторінці моделі прибраний
 - Канал комунікації з клієнтом: **Messenger (ManyChat Entry Point)**
 
+## Catalog data layer — status
+
+- CSV parser: stabilized (strict boolean parsing)
+- Types: aligned with parser contract
+- Selectors: validated input params (no unsafe casts)
+- Data flow: SSOT → parser → types → selectors (OK)
+
+Last update: <today date>
