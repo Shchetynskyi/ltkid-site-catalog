@@ -62,6 +62,14 @@ function norm(s: unknown): string {
   return typeof s === 'string' ? s.trim().toLowerCase() : '';
 }
 
+function parseCategory(v: unknown): Category {
+  const s = norm(v);
+  if (s === 'ready') return 'ready';
+  if (s === 'frames') return 'frames';
+  // safe default (avoid silent wrong filtering)
+  return 'ready';
+}
+
 function isUnisexValue(v: string): boolean {
   const s = norm(v);
   return s === 'унісекс' || s === 'unisex' || s === 'унисекс';
@@ -82,7 +90,7 @@ export function filterByCategoryAndGender(
   categoryParam: string,
   genderParam: string
 ): CatalogItem[] {
-  const c = norm(categoryParam) as Category;
+  const c = parseCategory(categoryParam);
   const g = norm(genderParam);
 
   const byCategory =
