@@ -1,11 +1,9 @@
 // src/lib/catalog/catalog.types.ts
 
-export type CatalogItem = {
+export interface CatalogItem {
   modelId: string;
   marketingTitle: string;
-
-  // NOTE: keep open to unexpected values from sheet, but we do rely on 'унісекс'
-  gender: 'жіноча' | 'чоловіча' | 'унісекс' | string;
+  gender: string;
 
   previewImage: string;
   mainImage: string;
@@ -17,6 +15,5 @@ export type CatalogItem = {
 
   frameWidth: number | null;
 
-  // v1.2 semantic field: used only for ready/frames categorization (NOT UI)
   hasManufacturerDiopters: boolean;
-};
+}
