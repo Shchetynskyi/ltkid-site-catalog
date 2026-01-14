@@ -19,7 +19,6 @@ export type FrameWidthRange = {
   max: number | null; // inclusive
 };
 
-// ВАЖЛИВО: тут ВСІ 4 діапазони + "Усі"
 export const FRAME_WIDTH_RANGES: readonly FrameWidthRange[] = [
   { key: 'ALL', label: 'Усі', min: null, max: null },
   { key: 'LT_130', label: 'до 130', min: null, max: 130 },
@@ -66,8 +65,14 @@ function parseCategory(v: unknown): Category {
   const s = norm(v);
   if (s === 'ready') return 'ready';
   if (s === 'frames') return 'frames';
-  // safe default (avoid silent wrong filtering)
   return 'ready';
+}
+
+// ====== SSOT RULE ======
+// READY  = DiopterValues NOT empty
+// FRAMES = DiopterValues empty
+function hasReadyDiopters(i: CatalogItem): boolean {
+  return typeof i.DiopterValues === 'string' && i.DiopterValues.trim() !== '';
 }
 
 function isUnisexValue(v: string): boolean {
@@ -95,8 +100,8 @@ export function filterByCategoryAndGender(
 
   const byCategory =
     c === 'ready'
-      ? items.filter((i) => i.hasManufacturerDiopters === true)
-      : items.filter((i) => i.hasManufacturerDiopters === false);
+      ? items.filter((i) => hasReadyDiopters(i))
+      : items.filter((i) => !hasReadyDiopters(i));
 
   if (g === 'унісекс' || g === 'unisex' || g === 'унисекс') {
     return byCategory.filter((i) => isUnisexValue(i.gender));
