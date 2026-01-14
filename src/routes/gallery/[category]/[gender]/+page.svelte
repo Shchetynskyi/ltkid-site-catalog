@@ -243,6 +243,11 @@
     gap: 8px;
   }
 
+  /* FIX: content must not slide under sticky toolbar */
+  .gallery {
+    padding-top: 12px;
+  }
+
   .filters {
     display: flex;
     gap: 8px;
