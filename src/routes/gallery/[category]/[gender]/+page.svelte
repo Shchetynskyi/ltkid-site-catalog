@@ -2,7 +2,8 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
+  import { browser } from '$app/environment';
 
   import {
     FRAME_WIDTH_RANGES,
@@ -69,7 +70,32 @@
     }
   }
 
+  // ========= SCROLL RESTORE (stable, incl F5) =========
+  function readSavedY(key: string): number | null {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    try {
+      const v = JSON.parse(raw) as { y?: number };
+      return typeof v?.y === 'number' ? v.y : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeSavedY(key: string): void {
+    sessionStorage.setItem(key, JSON.stringify({ y: window.scrollY, t: Date.now() }));
+  }
+
+  async function restoreSavedY(key: string): Promise<void> {
+    const y = readSavedY(key);
+    if (y == null) return;
+    await tick(); // wait for first render
+    window.scrollTo({ top: y, left: 0, behavior: 'auto' });
+  }
+
   onMount(() => {
+    if (!browser) return;
+
     // initial sync
     activeRange = readRangeFromUrl();
 
@@ -88,16 +114,27 @@
       goto(url.pathname + url.search, { replaceState: true, noScroll: true });
     }
 
-    const key = galleryScrollKey($page);
-    const saved = sessionStorage.getItem(key);
-    if (saved) requestAnimationFrame(() => window.scrollTo(0, Number(saved)));
+    // key must follow current URL (filters change it)
+    let currentKey = galleryScrollKey($page);
 
-    const onScroll = () => sessionStorage.setItem(key, String(window.scrollY));
+    // restore once on entry
+    restoreSavedY(currentKey);
+
+    const onScroll = (): void => writeSavedY(currentKey);
+    const onBeforeUnload = (): void => writeSavedY(currentKey); // F5 / reload
+
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    const unsub = page.subscribe(($p) => {
+      currentKey = galleryScrollKey($p);
+    });
 
     return () => {
       window.removeEventListener('popstate', onPopState);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      unsub();
     };
   });
 </script>
@@ -143,7 +180,7 @@
 
   {#if visibleItems.length === 0}
     <div class="empty">
-      <div class="empty-title">Нічого не знайдено</div>
+      <div class="empty-title">Нічого не знайденно</div>
       <div class="empty-text">
         Спробуйте інший діапазон ширини або покажіть усі моделі.
       </div>
