@@ -60,3 +60,6 @@ Frontend only.
 — UX-FLOW.md: екрани, переходи, CTA (UX SSOT)
 
 UX-логіка НЕ дублюється в інших документах.
+
+[2026-01-14] UX-FLOW v1.1 зафіксовано як ACTIVE / SOURCE OF TRUTH для екранів, переходів і CTA.
+
