@@ -14,6 +14,7 @@ export interface CatalogItem {
   aiPreview: boolean;
 
   frameWidth: number | null;
+  frameHeight: number | null;
 
   // SSOT: список діоптрій як рядок (може бути порожній)
   DiopterValues?: string;

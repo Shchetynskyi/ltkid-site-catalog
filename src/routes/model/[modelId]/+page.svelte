@@ -10,6 +10,7 @@
     price?: number | null;
 
     frameWidth?: number | null;
+    frameHeight?: number | null;
 
     tryOn?: boolean;
     aiPreview?: boolean;
@@ -53,6 +54,12 @@
   {#if item.frameWidth != null}
     <div class="dims">
       Ширина оправи: <strong>{item.frameWidth} мм</strong>
+    </div>
+  {/if}
+
+  {#if item.frameHeight != null}
+    <div class="dims">
+      Висота оправи: <strong>{item.frameHeight} мм</strong>
     </div>
   {/if}
 

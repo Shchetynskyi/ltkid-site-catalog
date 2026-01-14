@@ -97,6 +97,7 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       aiPreview: toBoolean(row['AIPreview']),
 
       frameWidth: toNumberOrNull(row['Ширина оправи (мм)']),
+      frameHeight: toNumberOrNull(row['Висота оправи (мм)']),
 
       // 🔑 SSOT: READY визначається тут
       DiopterValues: (row['DiopterValues'] ?? '').trim(),
