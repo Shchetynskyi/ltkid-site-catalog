@@ -94,3 +94,6 @@ Home → Готові (жіночі / чоловічі)
 - Gallery: стабілізовано збереження scroll-позиції (refresh, back, F5) для маршрутів /gallery/*
 
 READY/FRAMES logic fixed: READY determined by non-empty DiopterValues (SSOT)
+
+CSV parser fixed: DiopterValues mapped, READY gallery now shows data
+
