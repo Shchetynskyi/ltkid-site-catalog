@@ -68,3 +68,30 @@ UX-логіка НЕ дублюється в інших документах.
 — Канонічна ціна для сайту: `PriceIndex`
 — Колонка `Price` вважається ціною виробника і не використовується як основна ціна на UI
 — Будь-які зміни ціни на UI виконуються тільки через це рішення (SSOT)
+
+## [P0] SitePriceUAH — Derived column pattern (Google Sheets)
+
+SitePriceUAH є похідною колонкою для сайту.
+Джерело:
+- PriceIndex — source of truth
+- PriceMap — мапінг PriceIndex → PriceUAH
+
+Колонка додається ТІЛЬКИ в кінець таблиці CATALOG_V2.
+
+Через обмеження Google Sheets (ARRAYFORMULA не вміє коректно
+пропускати технічний рядок 2) використовується патерн
+з порожнім першим елементом масиву:
+
+={"";
+  ARRAYFORMULA(
+    IF(PriceIndex3:="";
+       "";
+       IFERROR(
+         VLOOKUP(VALUE(PriceIndex3:); PriceMap!A:B; 2; FALSE);
+         "Ціну уточнюйте"
+       )
+    )
+  )
+}
+
+Патерн аналогічний використаному в колонці Preview.
