@@ -122,3 +122,33 @@ CSV parser fixed: DiopterValues mapped, READY gallery now shows data
 — FRAMES визначається як DiopterValues empty  
 — CSV parser, типи і селектори вирівняні з SSOT  
 — UX, URL, фільтри не змінювались
+
+### ✅ Model Frame Height — DONE
+
+**Задача:** Model Frame Height (data contract & parsing)
+
+**Статус:** ЗАВЕРШЕНО
+
+**Опис:**
+Додано підтримку висоти оправи (мм) у каталозі моделей.
+Поле проходить повний data-ланцюжок від SSOT до UI без зміни UX.
+
+**Реалізація:**
+- Google Sheets (CSV): використовується колонка `Висота оправи (мм)`
+- CSV parser: значення парситься як `number | null`
+- Types: поле `frameHeight` додано до `CatalogItem`
+- Selectors: без змін
+- Model Page: умовний рендер (показується тільки якщо значення є)
+
+**Перевірки:**
+- DATA GATE (реальний CSV з Google Sheets) — OK
+- svelte-check — OK
+- npm run build — OK
+- Browser verification (dev server) — OK
+
+**UX:**
+- UX-FLOW v1.1 — без змін
+- Layout / тексти / CTA — без змін
+
+**Коміт:**
+- add: frameHeight (mm) to catalog contract
