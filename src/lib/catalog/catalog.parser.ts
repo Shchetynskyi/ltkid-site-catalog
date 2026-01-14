@@ -8,10 +8,6 @@ function toStringSafe(v: unknown): string {
   return typeof v === 'string' ? v : v == null ? '' : String(v);
 }
 
-/**
- * Strictly interpret common truthy values (UA/EN + numeric).
- * Empty/unknown values -> false.
- */
 function toBoolean(v: unknown): boolean {
   const s = toStringSafe(v).trim().toLowerCase();
   return s === 'true' || s === 'так' || s === '1' || s === 'yes';
@@ -20,22 +16,16 @@ function toBoolean(v: unknown): boolean {
 function toNumberOrNull(v: unknown): number | null {
   const s = toStringSafe(v).trim();
   if (!s) return null;
-
-  // allow comma decimal
   const normalized = s.replace(',', '.');
   const n = Number(normalized);
-
   return Number.isFinite(n) ? n : null;
 }
 
 function toPrice(v: unknown): number {
   const s = toStringSafe(v).trim();
   if (!s) return 0;
-
-  // keep digits, decimal separators, minus
   const cleaned = s.replace(/[^\d.,-]/g, '').replace(',', '.');
   const n = Number(cleaned);
-
   return Number.isFinite(n) ? n : 0;
 }
 
@@ -48,42 +38,24 @@ function hasManufacturerDiopters(row: CsvRow): boolean {
 }
 
 function extractDriveFileId(url: string): string | null {
-  // https://drive.google.com/file/d/<ID>/view
   const m1 = url.match(/https?:\/\/drive\.google\.com\/file\/d\/([^/]+)\//i);
   if (m1?.[1]) return m1[1];
-
-  // https://drive.google.com/open?id=<ID>
   const m2 = url.match(/https?:\/\/drive\.google\.com\/open\?id=([^&]+)/i);
   if (m2?.[1]) return m2[1];
-
-  // https://drive.google.com/uc?export=view&id=<ID>
   const m3 = url.match(/https?:\/\/drive\.google\.com\/uc\?.*?\bid=([^&]+)/i);
   if (m3?.[1]) return m3[1];
-
-  // ...?id=<ID> (generic fallback for drive links)
   const m4 = url.match(/\bid=([^&]+)/i);
   if (m4?.[1] && /drive\.google\.com/i.test(url)) return m4[1];
-
   return null;
 }
 
-/**
- * Google Drive "view" links are not direct images.
- * We normalize them into Drive thumbnail endpoint which returns an image response:
- * https://drive.google.com/thumbnail?id=<ID>&sz=w1200
- */
 function normalizeImageUrl(raw: unknown): string {
   const url = toStringSafe(raw).trim();
   if (!url) return '';
-
-  // If already a usable direct image URL, keep it
-  // (including already-normalized Drive thumbnail and googleusercontent)
   if (/^https?:\/\/drive\.google\.com\/thumbnail\?/i.test(url)) return url;
   if (/^https?:\/\/lh3\.googleusercontent\.com\//i.test(url)) return url;
-
   const id = extractDriveFileId(url);
   if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-
   return url;
 }
 
@@ -126,6 +98,10 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
 
       frameWidth: toNumberOrNull(row['Ширина оправи (мм)']),
 
+      // 🔑 SSOT: READY визначається тут
+      DiopterValues: (row['DiopterValues'] ?? '').trim(),
+
+      // legacy (більше не використовується для READY)
       hasManufacturerDiopters: hasManufacturerDiopters(row)
     });
   }
