@@ -15,5 +15,9 @@ export interface CatalogItem {
 
   frameWidth: number | null;
 
+  // SSOT: список діоптрій як рядок (може бути порожній)
+  DiopterValues?: string;
+
+  // legacy поле (НЕ використовується для READY/FRAMES)
   hasManufacturerDiopters: boolean;
 }
