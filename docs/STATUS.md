@@ -92,3 +92,5 @@ Home → Готові (жіночі / чоловічі)
 — UX-FLOW v1.1 не змінювався
 
 - Gallery: стабілізовано збереження scroll-позиції (refresh, back, F5) для маршрутів /gallery/*
+
+READY/FRAMES logic fixed: READY determined by non-empty DiopterValues (SSOT)
