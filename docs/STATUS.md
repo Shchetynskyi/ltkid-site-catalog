@@ -61,3 +61,6 @@
 - Data flow: SSOT → parser → types → selectors (OK)
 
 Last update: <today date>
+
+[2026-01-14] UX-FLOW v1.1 заморожено.
+Dev-робота дозволена тільки в межах зафіксованого UX.
