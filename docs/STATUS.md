@@ -97,3 +97,10 @@ READY/FRAMES logic fixed: READY determined by non-empty DiopterValues (SSOT)
 
 CSV parser fixed: DiopterValues mapped, READY gallery now shows data
 
+[2026-01-14] READY / FRAMES logic fixed (SSOT-aligned)
+
+— READY визначається як DiopterValues NOT empty
+— FRAMES визначається як DiopterValues empty
+— CSV parser, типи і селектори вирівняні з SSOT
+— UX, URL, фільтри не змінювались
+
