@@ -7,7 +7,8 @@
     modelId: string;
     marketingTitle?: string;
     mainImage?: string;
-    price?: number | null;
+
+    SitePriceUAH?: string | number | null;
 
     frameWidth?: number | null;
     frameHeight?: number | null;
@@ -19,9 +20,19 @@
   export let data: { item: ModelItem };
   const item = data.item;
 
-  function formatPrice(value: number | null | undefined): string {
-    if (value == null || Number.isNaN(value)) return '';
-    return `${Math.round(value)} грн`;
+  function getPriceLabel(value: unknown): string {
+    const n =
+      typeof value === 'number'
+        ? value
+        : typeof value === 'string'
+          ? Number(value.trim().replace(',', '.'))
+          : NaN;
+
+    if (!Number.isFinite(n) || n <= 0) {
+      return 'Ціну уточнюйте';
+    }
+
+    return `${n} грн`;
   }
 
   function viewMore(): void {
@@ -47,9 +58,9 @@
 
   <h1 class="title">{item.marketingTitle || item.modelId}</h1>
 
-  {#if item.price != null}
-    <div class="price">{formatPrice(item.price)}</div>
-  {/if}
+  <div class="price">
+    {getPriceLabel(item.SitePriceUAH)}
+  </div>
 
   {#if item.frameWidth != null}
     <div class="dims">

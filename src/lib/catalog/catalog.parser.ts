@@ -21,14 +21,6 @@ function toNumberOrNull(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function toPrice(v: unknown): number {
-  const s = toStringSafe(v).trim();
-  if (!s) return 0;
-  const cleaned = s.replace(/[^\d.,-]/g, '').replace(',', '.');
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : 0;
-}
-
 function isVisible(row: CsvRow): boolean {
   return toBoolean(row['Показувати']);
 }
@@ -55,7 +47,7 @@ function normalizeImageUrl(raw: unknown): string {
   if (/^https?:\/\/drive\.google\.com\/thumbnail\?/i.test(url)) return url;
   if (/^https?:\/\/lh3\.googleusercontent\.com\//i.test(url)) return url;
   const id = extractDriveFileId(url);
-  if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+  if (id) return 'https://drive.google.com/thumbnail?id=' + id + '&sz=w1200';
   return url;
 }
 
@@ -91,7 +83,8 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       previewImage: normalizeImageUrl(row['Прев’ю']),
       mainImage: normalizeImageUrl(row['Фото (URL)']),
 
-      price: toPrice(row['Price']),
+      // ✅ SSOT: єдине поле ціни для сайту
+      SitePriceUAH: (row['SitePriceUAH'] ?? '').trim(),
 
       tryOn: toBoolean(row['TryOn']),
       aiPreview: toBoolean(row['AIPreview']),

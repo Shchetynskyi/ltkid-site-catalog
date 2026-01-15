@@ -8,7 +8,8 @@ export interface CatalogItem {
   previewImage: string;
   mainImage: string;
 
-  price: number;
+  // ✅ SSOT: єдине поле ціни для сайту
+  SitePriceUAH?: string;
 
   tryOn: boolean;
   aiPreview: boolean;

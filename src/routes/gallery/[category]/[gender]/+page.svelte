@@ -17,14 +17,24 @@
     modelId: string;
     marketingTitle: string;
     previewImage?: string;
-    price?: number | null;
+    SitePriceUAH?: string | number | null;
   };
 
   export let data: { items: GalleryItem[] };
 
-  function formatPrice(value: number | null | undefined): string {
-    if (value == null || Number.isNaN(value)) return '';
-    return `${Math.round(value)} грн`;
+  function getPriceLabel(value: unknown): string {
+    const n =
+      typeof value === 'number'
+        ? value
+        : typeof value === 'string'
+          ? Number(value.trim().replace(',', '.'))
+          : NaN;
+
+    if (!Number.isFinite(n) || n <= 0) {
+      return 'Ціну уточнюйте';
+    }
+
+    return `${n} грн`;
   }
 
   function readRangeFromUrl(): FrameWidthRangeKey {
@@ -40,7 +50,6 @@
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
   let notice: string | null = readNoticeFromUrl();
 
-  // notice can stay reactive (safe)
   $: {
     const nextNotice = readNoticeFromUrl();
     if (nextNotice !== notice) notice = nextNotice;
@@ -49,7 +58,6 @@
   $: visibleItems = filterByFrameWidth(data.items, activeRange);
 
   function setRange(key: FrameWidthRangeKey): void {
-    // IMPORTANT: state first (instant UI + filtering)
     activeRange = key;
 
     const url = new URL($page.url);
@@ -70,7 +78,6 @@
     }
   }
 
-  // ========= SCROLL RESTORE (stable, incl F5) =========
   function readSavedY(key: string): number | null {
     const raw = sessionStorage.getItem(key);
     if (!raw) return null;
@@ -89,23 +96,20 @@
   async function restoreSavedY(key: string): Promise<void> {
     const y = readSavedY(key);
     if (y == null) return;
-    await tick(); // wait for first render
+    await tick();
     window.scrollTo({ top: y, left: 0, behavior: 'auto' });
   }
 
   onMount(() => {
     if (!browser) return;
 
-    // initial sync
     activeRange = readRangeFromUrl();
 
-    // back/forward sync
     const onPopState = (): void => {
       activeRange = readRangeFromUrl();
     };
     window.addEventListener('popstate', onPopState);
 
-    // model_not_found -> clear width filter
     const url = new URL($page.url);
     const n = url.searchParams.get('notice');
     if (n === 'model_not_found' && url.searchParams.has('w')) {
@@ -114,14 +118,12 @@
       goto(url.pathname + url.search, { replaceState: true, noScroll: true });
     }
 
-    // key must follow current URL (filters change it)
     let currentKey = galleryScrollKey($page);
 
-    // restore once on entry
     restoreSavedY(currentKey);
 
     const onScroll = (): void => writeSavedY(currentKey);
-    const onBeforeUnload = (): void => writeSavedY(currentKey); // F5 / reload
+    const onBeforeUnload = (): void => writeSavedY(currentKey);
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('beforeunload', onBeforeUnload);
@@ -214,9 +216,9 @@
 
           <div class="gallery-meta">
             <div class="gallery-title">{item.marketingTitle || item.modelId}</div>
-            {#if item.price != null}
-              <div class="gallery-price">{formatPrice(item.price)}</div>
-            {/if}
+            <div class="gallery-price">
+              {getPriceLabel(item.SitePriceUAH)}
+            </div>
           </div>
         </a>
       {/each}
@@ -243,7 +245,6 @@
     gap: 8px;
   }
 
-  /* FIX: content must not slide under sticky toolbar */
   .gallery {
     padding-top: 12px;
   }
