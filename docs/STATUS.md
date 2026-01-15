@@ -147,3 +147,22 @@ _Last update: 2026-01-14_
 для збереження технічного рядка 2 (обмеження Google Sheets).
 
 Статус: ✅ closed
+
+## P0 — SitePriceUAH (Model & Gallery)
+
+**Status:** CLOSED ✅
+
+**Summary (fact):**
+- Реалізовано відображення ціни на сайті виключно з колонки `SitePriceUAH`.
+- Model Page та Gallery Page використовують ТІЛЬКИ `SitePriceUAH`.
+- Поля `Price` та `PriceIndex` повністю прибрані з UI-логіки.
+- Реалізовано fallback: якщо `SitePriceUAH` порожня або некоректна — показується текст “Ціну уточнюйте”.
+- Регресій не виявлено (Home / Gallery / Model).
+
+**SSOT:**
+- Google Sheets — `CATALOG_V2`
+- `SitePriceUAH` — єдине джерело ціни для клієнтського UI.
+
+**Result:**
+- P0 блокер знято.
+- Підготовлено основу для старту Phase 2 (Order / Lead Capture).
