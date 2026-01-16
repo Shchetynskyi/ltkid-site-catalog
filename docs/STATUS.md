@@ -156,3 +156,67 @@ _Last update: 2026-01-16_
 - інтегрувати оплату, AI, Online Mirror
 
 - [Phase 2] Model Page встановлює canonical LeadPayload v1 (ModelID, MarketingTitle, SitePriceUAH, Image, ref=site_catalog__model).
+
+## Phase 2 — Lead Capture (Messenger) — ACTUAL SNAPSHOT
+
+**Status:** CLOSED ✅  
+**Date:** 2026-01-14
+
+### Що реалізовано (факт)
+
+Реалізовано канонічну передачу контексту ліда з **Model Page** у Messenger
+відповідно до SSOT (`DECISIONS.md`, LeadPayload v1).
+
+Клік **«Звʼязатися з менеджером»** на сторінці моделі:
+- відкриває Messenger (ManyChat Entry Point)
+- передає повний, стандартизований контекст
+- однаковий payload бачать і клієнт, і менеджер
+
+---
+
+### LeadPayload v1 (канонічний)
+
+Передається **СТРОГО**:
+
+- `ref = site_catalog__model`
+- `ModelID`
+- `MarketingTitle`
+- `SitePriceUAH`  
+  (рівно те, що показано в UI, включно з текстом **«Ціну уточнюйте»**)
+- `Image`  
+  (те саме зображення, яке бачив користувач на Model Page)
+
+**НЕ передається:**
+- `Price`
+- `PriceIndex`
+- будь-які “вгадані” діоптрії
+- `DiopterContext`  
+  (Phase 2 не включає сценарій «Для мого зору»)
+
+---
+
+### Архітектурне рішення
+
+- Header CTA **НЕ формує payload**
+- **Model Page** є єдиним канонічним джерелом LeadPayload
+- Використано store як SSOT контексту:
+  - Model Page → встановлює payload
+  - Layout → читає payload  
+    або використовує fallback `ref = site_catalog__from_site`
+- UX-FLOW v1.1 **НЕ змінювався**
+
+---
+
+### Перевірка
+
+- Payload підтверджено на рівні згенерованого `m.me` URL
+- Обмеження Messenger / ManyChat враховані
+- Реальна передача працює стабільно
+
+---
+
+### Висновок
+
+- Phase 2 — Lead Capture реалізовано повністю та коректно
+- Контекст ліда стандартизований і прозорий для клієнта
+- Готово до використання менеджерами без додаткових UX або data-змін
