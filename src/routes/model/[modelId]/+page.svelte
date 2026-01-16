@@ -2,6 +2,8 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import { onMount, onDestroy } from 'svelte';
+  import { managerLeadPayload } from '$lib/lead/managerContext.store';
 
   type ModelItem = {
     modelId: string;
@@ -45,6 +47,21 @@
     }
     goto('/gallery/frames/unisex');
   }
+
+  onMount(() => {
+    managerLeadPayload.set({
+      ModelID: item.modelId,
+      MarketingTitle: item.marketingTitle || item.modelId,
+      SitePriceUAH: getPriceLabel(item.SitePriceUAH),
+      Image: item.mainImage || '',
+      ref: 'site_catalog__model'
+      // DiopterContext intentionally absent in Phase 2
+    });
+  });
+
+  onDestroy(() => {
+    managerLeadPayload.set(null);
+  });
 </script>
 
 <section class="model">
