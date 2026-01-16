@@ -1,7 +1,9 @@
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
   import { page } from '$app/stores';
+  import { get } from 'svelte/store';
   import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { managerLeadPayload } from '$lib/lead/managerContext.store';
 
   $: isHome = $page.url.pathname === '/';
 
@@ -13,17 +15,28 @@
   }
 
   function buildManagerUrl(pathname: string): string {
-    const match = pathname.match(/^\/model\/([^/]+)$/);
-    const modelId = match?.[1];
-
-    const ref = modelId
-      ? `site_catalog__model_${modelId}`
-      : `site_catalog__from_site`;
-
     const base = normalizeBase(MANAGER_MESSENGER_URL);
     const url = new URL(base);
-    url.searchParams.set('ref', ref);
 
+    const payload = get(managerLeadPayload);
+
+    if (payload) {
+      // LeadPayload v1 (canonical)
+      url.searchParams.set('ref', payload.ref);
+      url.searchParams.set('ModelID', payload.ModelID);
+      url.searchParams.set('MarketingTitle', payload.MarketingTitle);
+      url.searchParams.set('SitePriceUAH', payload.SitePriceUAH);
+      url.searchParams.set('Image', payload.Image);
+
+      if (payload.DiopterContext) {
+        url.searchParams.set('DiopterContext', payload.DiopterContext);
+      }
+
+      return url.toString();
+    }
+
+    // Fallback for non-model pages (Phase 2 safe)
+    url.searchParams.set('ref', 'site_catalog__from_site');
     return url.toString();
   }
 
