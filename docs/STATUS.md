@@ -154,3 +154,5 @@ _Last update: 2026-01-16_
 - додавати нові CTA або кнопки
 - реалізовувати підбір за діоптрією
 - інтегрувати оплату, AI, Online Mirror
+
+- [Phase 2] Model Page встановлює canonical LeadPayload v1 (ModelID, MarketingTitle, SitePriceUAH, Image, ref=site_catalog__model).
