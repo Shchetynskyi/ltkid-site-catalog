@@ -11,8 +11,8 @@
   const gender = $page.params.gender;
 
   function selectDiopter(value: string) {
-    // далі фільтрація галереї — наступний крок
-    window.location.href = `/gallery/ready/${gender}?diopter=${value}`;
+    // ВАЖЛИВО: '+' треба кодувати, інакше URLSearchParams перетворює його на пробіл
+    window.location.href = `/gallery/ready/${gender}?diopter=${encodeURIComponent(value)}`;
   }
 </script>
 
@@ -43,4 +43,3 @@
     cursor: pointer;
   }
 </style>
-

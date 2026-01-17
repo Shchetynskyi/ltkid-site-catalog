@@ -20,7 +20,10 @@ export const load: PageLoad = async ({ fetch, params }) => {
     marketingTitle: i.marketingTitle,
     previewImage: i.previewImage,
     SitePriceUAH: (i as any).SitePriceUAH ?? '',
-    frameWidth: i.frameWidth ?? null
+    frameWidth: i.frameWidth ?? null,
+
+    // Phase 3 — required for diopter filtering
+    DiopterValues: (i as any).DiopterValues ?? null
   }));
 
   return { items: mapped };

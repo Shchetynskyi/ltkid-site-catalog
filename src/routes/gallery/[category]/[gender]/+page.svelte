@@ -12,12 +12,16 @@
     type FrameWidthItem
   } from '$lib/catalog/catalog.selectors';
   import { galleryScrollKey } from '$lib/utils/scroll';
+  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
 
   type GalleryItem = FrameWidthItem & {
     modelId: string;
     marketingTitle: string;
     previewImage?: string;
     SitePriceUAH?: string | number | null;
+
+    // Phase 3 (ready-only)
+    DiopterValues?: string | null;
   };
 
   export let data: { items: GalleryItem[] };
@@ -47,6 +51,47 @@
     return $page.url.searchParams.get('notice');
   }
 
+  // Phase 3: diopter comes ONLY from explicit diopter flow
+  function readDiopterFromUrl(): string | null {
+    const v = $page.url.searchParams.get('diopter');
+    if (!v) return null;
+    const t = v.trim();
+    return t ? t : null;
+  }
+
+  function isReadyCategory(): boolean {
+    return $page.params.category === 'ready';
+  }
+
+  function normalizeBase(raw: string): string {
+    const trimmed = (raw ?? '').trim();
+    if (!trimmed) return 'https://m.me/101402489688578';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    return `https://${trimmed.replace(/^\/+/, '')}`;
+  }
+
+  function buildMessengerUrlWithDiopter(diopter: string): string {
+    const base = normalizeBase(MANAGER_MESSENGER_URL);
+    const url = new URL(base);
+
+    // Canonical safe fallback (Phase 2 behavior)
+    url.searchParams.set('ref', 'site_catalog__from_site');
+    url.searchParams.set('DiopterContext', diopter);
+
+    return url.toString();
+  }
+
+  // Extract ONLY tokens like +3.00 / -0.75 from possibly noisy strings
+  function extractDiopters(raw: string | null | undefined): string[] {
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+(?:\.\d{2})/g);
+    return matches ?? [];
+  }
+
+  function diopterContains(values: string | null | undefined, d: string): boolean {
+    return extractDiopters(values).includes(d);
+  }
+
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
   let notice: string | null = readNoticeFromUrl();
 
@@ -55,7 +100,16 @@
     if (nextNotice !== notice) notice = nextNotice;
   }
 
-  $: visibleItems = filterByFrameWidth(data.items, activeRange);
+  $: diopter = readDiopterFromUrl();
+
+  // base width filter (existing behavior)
+  $: widthFiltered = filterByFrameWidth(data.items, activeRange);
+
+  // Phase 3 diopter filter (ready-only)
+  $: visibleItems =
+    isReadyCategory() && diopter
+      ? widthFiltered.filter((item) => diopterContains(item.DiopterValues ?? null, diopter))
+      : widthFiltered;
 
   function setRange(key: FrameWidthRangeKey): void {
     activeRange = key;
@@ -100,6 +154,10 @@
     window.scrollTo({ top: y, left: 0, behavior: 'auto' });
   }
 
+  function shouldAutoMessenger(): boolean {
+    return isReadyCategory() && !!diopter && visibleItems.length === 0;
+  }
+
   onMount(() => {
     if (!browser) return;
 
@@ -131,6 +189,13 @@
     const unsub = page.subscribe(($p) => {
       currentKey = galleryScrollKey($p);
     });
+
+    // Phase 3: empty gallery forbidden when diopter context active
+    if (shouldAutoMessenger() && diopter) {
+      Promise.resolve().then(() => {
+        window.location.href = buildMessengerUrlWithDiopter(diopter);
+      });
+    }
 
     return () => {
       window.removeEventListener('popstate', onPopState);
@@ -181,21 +246,26 @@
   </div>
 
   {#if visibleItems.length === 0}
-    <div class="empty">
-      <div class="empty-title">Нічого не знайденно</div>
-      <div class="empty-text">
-        Спробуйте інший діапазон ширини або покажіть усі моделі.
+    {#if isReadyCategory() && diopter}
+      <!-- Phase 3: empty gallery forbidden; auto-redirect happens onMount -->
+      <div style="display:none;"></div>
+    {:else}
+      <div class="empty">
+        <div class="empty-title">Нічого не знайденно</div>
+        <div class="empty-text">
+          Спробуйте інший діапазон ширини або покажіть усі моделі.
+        </div>
+        <div
+          role="button"
+          tabindex="0"
+          class="empty-btn"
+          on:click={showAll}
+          on:keydown={(e) => onKeyActivate(e, showAll)}
+        >
+          Показати всі
+        </div>
       </div>
-      <div
-        role="button"
-        tabindex="0"
-        class="empty-btn"
-        on:click={showAll}
-        on:keydown={(e) => onKeyActivate(e, showAll)}
-      >
-        Показати всі
-      </div>
-    </div>
+    {/if}
   {:else}
     <div class="gallery-list">
       {#each visibleItems as item (item.modelId)}
