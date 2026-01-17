@@ -12,7 +12,7 @@
 
 <section class="ready-select">
   <a class="btn" href={`/gallery/ready/${gender}`} aria-label="Показати всі"></a>
-  <a class="btn" href={`/select`} aria-label="Підібрати за моїм зором"></a>
+  <a class="btn" href={`/gallery/ready/${gender}/diopter`} aria-label="Підібрати за моїм зором"></a>
 </section>
 
 <style>
