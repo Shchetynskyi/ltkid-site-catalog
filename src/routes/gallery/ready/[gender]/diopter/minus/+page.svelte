@@ -11,8 +11,7 @@
   const gender = $page.params.gender;
 
   function selectDiopter(value: string) {
-    // далі фільтрація галереї — наступний крок
-    window.location.href = `/gallery/ready/${gender}?diopter=${value}`;
+    window.location.href = `/gallery/ready/${gender}?diopter=${encodeURIComponent(value)}`;
   }
 </script>
 
