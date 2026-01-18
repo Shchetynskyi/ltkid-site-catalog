@@ -17,7 +17,10 @@
   type GalleryItem = FrameWidthItem & {
     modelId: string;
     marketingTitle: string;
-    previewImage?: string;
+
+    // IMPORTANT: use same image field as model page
+    mainImage?: string;
+
     SitePriceUAH?: string | number | null;
 
     // Phase 3 (ready-only)
@@ -174,6 +177,17 @@
     return isReadyCategory() && !!diopter && visibleItems.length === 0;
   }
 
+  // neutral visual fallback (no "broken image" state)
+  function initialsFromTitle(title: string, modelId: string): string {
+    const t = (title || '').trim();
+    if (!t) return (modelId || '').slice(0, 2).toUpperCase();
+    const parts = t.split(/\s+/).filter(Boolean);
+    const a = parts[0]?.[0] ?? '';
+    const b = parts[1]?.[0] ?? '';
+    const s = (a + b) || parts[0]?.slice(0, 2) || modelId?.slice(0, 2) || 'OK';
+    return s.toUpperCase();
+  }
+
   onMount(() => {
     if (!browser) return;
 
@@ -230,7 +244,7 @@
   {/if}
 
   <div class="gallery-toolbar">
-    <div class="filters">
+    <div class="filters" aria-label="Фільтр ширини оправи">
       {#each FRAME_WIDTH_RANGES as r (r.key)}
         <div
           role="button"
@@ -246,18 +260,20 @@
       {/each}
     </div>
 
-    <div class="results-count">
-      Показано: <strong>{visibleItems.length}</strong>
-    </div>
+    <div class="toolbar-row">
+      <div class="results-count">
+        Показано: <strong>{visibleItems.length}</strong>
+      </div>
 
-    <div
-      role="button"
-      tabindex="0"
-      class="show-all"
-      on:click={showAll}
-      on:keydown={(e) => onKeyActivate(e, showAll)}
-    >
-      Показати всі
+      <div
+        role="button"
+        tabindex="0"
+        class="show-all"
+        on:click={showAll}
+        on:keydown={(e) => onKeyActivate(e, showAll)}
+      >
+        Показати всі
+      </div>
     </div>
   </div>
 
@@ -283,29 +299,35 @@
       </div>
     {/if}
   {:else}
-    <div class="gallery-list">
+    <div class="gallery-grid" aria-label="Галерея моделей">
       {#each visibleItems as item (item.modelId)}
         <a
-          class="gallery-card"
+          class="product-card"
           href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent(
             $page.url.pathname + $page.url.search
           )}`}
         >
-          {#if item.previewImage}
-            <img
-              class="gallery-img"
-              src={item.previewImage}
-              alt={item.marketingTitle || item.modelId}
-              loading="lazy"
-              decoding="async"
-            />
-          {/if}
+          <div class="media">
+            {#if item.mainImage}
+              <img
+                class="media-img"
+                src={item.mainImage}
+                alt={item.marketingTitle || item.modelId}
+                loading="lazy"
+                decoding="async"
+              />
+            {:else}
+              <div class="media-fallback" aria-hidden="true">
+                <span class="media-fallback-text">
+                  {initialsFromTitle(item.marketingTitle, item.modelId)}
+                </span>
+              </div>
+            {/if}
+          </div>
 
-          <div class="gallery-meta">
-            <div class="gallery-title">{item.marketingTitle || item.modelId}</div>
-            <div class="gallery-price">
-              {getPriceLabel(item.SitePriceUAH)}
-            </div>
+          <div class="meta">
+            <div class="title">{item.marketingTitle || item.modelId}</div>
+            <div class="price">{getPriceLabel(item.SitePriceUAH)}</div>
           </div>
         </a>
       {/each}
@@ -314,8 +336,12 @@
 </section>
 
 <style>
+  .gallery {
+    padding: 12px 12px 24px;
+  }
+
   .notice {
-    margin: 8px 0 10px;
+    margin: 8px 0 12px;
     padding: 10px 12px;
     border: 1px solid currentColor;
     border-radius: 12px;
@@ -326,14 +352,10 @@
     position: sticky;
     top: 0;
     z-index: 5;
-    padding: 10px 0;
+    padding: 10px 0 12px;
     backdrop-filter: blur(8px);
     display: grid;
-    gap: 8px;
-  }
-
-  .gallery {
-    padding-top: 12px;
+    gap: 10px;
   }
 
   .filters {
@@ -344,18 +366,27 @@
 
   .filter-item {
     font-weight: 700;
-    border: 1px solid #000;
+    border: 1px solid rgba(0, 0, 0, 0.55);
     border-radius: 999px;
-    padding: 4px 10px;
+    padding: 6px 12px;
     cursor: pointer;
     user-select: none;
-    background: transparent;
+    background: #fff;
     color: #000;
+    font-size: 14px;
   }
 
   .filter-item.selected {
     background: #000;
     color: #fff;
+    border-color: #000;
+  }
+
+  .toolbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .results-count {
@@ -367,36 +398,83 @@
     font-weight: 800;
     cursor: pointer;
     user-select: none;
+    font-size: 14px;
   }
 
-  .gallery-list {
+  /* Mobile-first товарний грід */
+  .gallery-grid {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     padding-top: 12px;
   }
 
-  .gallery-card {
+  .product-card {
     display: grid;
-    gap: 8px;
+    gap: 10px;
     text-decoration: none;
     color: inherit;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    padding: 10px;
+    background: #fff;
 
     /* PERF: avoid laying out/rendering offscreen cards on mobile */
     content-visibility: auto;
-    contain-intrinsic-size: 320px;
+    contain-intrinsic-size: 260px;
   }
 
-  .gallery-img {
-    width: 100%;
+  .media {
     border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.04);
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
   }
 
-  .gallery-title {
+  .media-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .media-fallback {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+
+  .media-fallback-text {
+    font-weight: 800;
+    font-size: 18px;
+    opacity: 0.55;
+    letter-spacing: 0.08em;
+  }
+
+  .meta {
+    display: grid;
+    gap: 4px;
+  }
+
+  .title {
     font-weight: 700;
+    font-size: 14px;
+    line-height: 1.2;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(14px * 1.2 * 2);
   }
 
-  .gallery-price {
-    opacity: 0.8;
+  .price {
+    font-size: 14px;
+    opacity: 0.85;
+    font-weight: 700;
   }
 
   .empty {
@@ -405,11 +483,37 @@
     gap: 10px;
   }
 
+  .empty-title {
+    font-weight: 800;
+  }
+
+  .empty-text {
+    opacity: 0.8;
+  }
+
   .empty-btn {
     border: 1px solid #000;
     border-radius: 999px;
     padding: 8px 14px;
     font-weight: 800;
     cursor: pointer;
+    width: fit-content;
+  }
+
+  @media (min-width: 640px) {
+    .gallery {
+      padding: 16px 16px 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .gallery-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .product-card {
+      padding: 12px;
+    }
   }
 </style>

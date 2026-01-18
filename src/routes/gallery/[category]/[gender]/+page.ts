@@ -84,7 +84,13 @@ export const load: PageLoad = async ({ params, parent, url }) => {
   const mapped = filtered.map((i) => ({
     modelId: i.modelId,
     marketingTitle: i.marketingTitle,
-    previewImage: i.previewImage,
+
+    // IMPORTANT: pass same field as model page uses
+    mainImage: (i as any).mainImage ?? null,
+
+    // keep existing field (might be used elsewhere)
+    previewImage: (i as any).previewImage ?? null,
+
     SitePriceUAH: (i as any).SitePriceUAH ?? '',
     frameWidth: i.frameWidth ?? null,
     DiopterValues: (i as any).DiopterValues ?? null
