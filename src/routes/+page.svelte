@@ -22,6 +22,8 @@
   {#each data.cards as card}
     <a
       href={hrefFor(card)}
+      data-sveltekit-preload-data="hover"
+      data-sveltekit-preload-code="hover"
       style="display:block; margin:12px 0; padding:16px; border:1px solid #ccc;"
     >
       <div>

@@ -1,4 +1,3 @@
-// src/lib/home/home.config.ts
 import type { Category, Gender } from '$lib/catalog/catalog.selectors';
 
 export interface HomeCardConfig {

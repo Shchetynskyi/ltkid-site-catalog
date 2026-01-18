@@ -81,15 +81,31 @@
     return url.toString();
   }
 
-  // Extract ONLY tokens like +3.00 / -0.75 from possibly noisy strings
-  function extractDiopters(raw: string | null | undefined): string[] {
-    if (!raw) return [];
-    const matches = raw.match(/[+-]\d+(?:\.\d{2})/g);
-    return matches ?? [];
+  // PERF: pre-index diopters per item once (avoid regex per item per render)
+  const DIO_RE = /[+-]\d+(?:\.\d{2})/g;
+
+  function buildDiopterSet(raw: string | null | undefined): Set<string> {
+    const set = new Set<string>();
+    if (!raw) return set;
+    const matches = raw.match(DIO_RE);
+    if (!matches) return set;
+    for (const m of matches) set.add(m);
+    return set;
   }
 
-  function diopterContains(values: string | null | undefined, d: string): boolean {
-    return extractDiopters(values).includes(d);
+  let diopterIndex = new Map<string, Set<string>>();
+
+  $: {
+    // rebuild index only when items change
+    const next = new Map<string, Set<string>>();
+    for (const item of data.items) {
+      next.set(item.modelId, buildDiopterSet(item.DiopterValues ?? null));
+    }
+    diopterIndex = next;
+  }
+
+  function diopterContains(modelId: string, d: string): boolean {
+    return diopterIndex.get(modelId)?.has(d) ?? false;
   }
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
@@ -108,7 +124,7 @@
   // Phase 3 diopter filter (ready-only)
   $: visibleItems =
     isReadyCategory() && diopter
-      ? widthFiltered.filter((item) => diopterContains(item.DiopterValues ?? null, diopter))
+      ? widthFiltered.filter((item) => diopterContains(item.modelId, diopter))
       : widthFiltered;
 
   function setRange(key: FrameWidthRangeKey): void {
@@ -281,6 +297,7 @@
               src={item.previewImage}
               alt={item.marketingTitle || item.modelId}
               loading="lazy"
+              decoding="async"
             />
           {/if}
 
@@ -363,6 +380,10 @@
     gap: 8px;
     text-decoration: none;
     color: inherit;
+
+    /* PERF: avoid laying out/rendering offscreen cards on mobile */
+    content-visibility: auto;
+    contain-intrinsic-size: 320px;
   }
 
   .gallery-img {
