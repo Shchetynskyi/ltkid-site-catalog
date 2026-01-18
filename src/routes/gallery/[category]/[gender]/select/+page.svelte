@@ -11,8 +11,19 @@
 </script>
 
 <section class="ready-select">
-  <a class="btn" href={`/gallery/ready/${gender}`} aria-label="Показати всі"></a>
-  <a class="btn" href={`/gallery/ready/${gender}/diopter`} aria-label="Підібрати за моїм зором"></a>
+  <a
+    class="card"
+    href={`/gallery/ready/${gender}`}
+  >
+    <div class="card__title">Показати всі</div>
+  </a>
+
+  <a
+    class="card"
+    href={`/gallery/ready/${gender}/diopter`}
+  >
+    <div class="card__title">Підібрати під мій зір</div>
+  </a>
 </section>
 
 <style>
@@ -24,10 +35,19 @@
     padding: 16px;
   }
 
-  .btn {
-    display: block;
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 18px;
     border: 1px solid rgba(0, 0, 0, 0.15);
     background: rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card__title {
+    font-size: 18px;
+    font-weight: 600;
   }
 </style>
