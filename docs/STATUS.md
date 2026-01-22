@@ -1,6 +1,6 @@
 ﻿# Поточний статус системи — SITE-CATALOG
 
-_Last update: 2026-01-16_
+_Last update: 2026-01-17_
 
 ---
 
@@ -12,6 +12,7 @@ _Last update: 2026-01-16_
 - Архітектура: read-only
 - SSOT: Google Sheets (`CATALOG_V2`)
 - Гілка: feature/catalog-core
+- Production-like URL: https://site-catalog.vercel.app
 
 ---
 
@@ -19,23 +20,24 @@ _Last update: 2026-01-16_
 
 **Status:** COMPLETED ✅
 
-### Реалізовано
+### Реалізовано (факт)
 
-- Home (4 стартові картки)
-- Галереї моделей
-- Проміжний екран ready-флоу:
+- Home:
+  - 4 стартові картки (готові / оправи / чоловічі / жіночі)
+- Галереї моделей (Ready / Frames)
+- Проміжний екран ready-flow:
   - «Показати всі»
-  - «Підібрати за моїм зором»
+  - «Підібрати під мій зір»
 - Фільтр ширини оправи
 - Збереження scroll-позиції (back / refresh / F5)
-- Сторінка моделі
-- Model Page Polish:
+- Сторінка моделі (Model Page)
+- Model Page — базова реалізація:
   - mainImage
   - frameWidth (мм)
   - frameHeight (мм)
   - CTA сервісів рендеряться строго по `tryOn / aiPreview`
   - «Дивитись ще» повертає в галерею з контекстом
-- Умовний UI Try-On / AI (без бізнес-логіки)
+- Умовні UI-блоки Try-On / AI (без бізнес-логіки)
 
 ### Технічний стан
 
@@ -79,44 +81,36 @@ _Last update: 2026-01-16_
 
 ## P0 — SitePriceUAH
 
-### Status: CLOSED ✅
+**Status:** CLOSED ✅
 
-**Summary (fact):**
+### Summary (fact)
+
 - Додано похідну колонку `SitePriceUAH` у SSOT
 - Реалізовано мапінг:
   `PriceIndex → PriceMap → SitePriceUAH`
 - Використано канонічний ARRAYFORMULA-патерн
   (з порожнім першим елементом масиву)
 
-**UI:**
+### UI
+
 - Model Page та Gallery Page використовують ТІЛЬКИ `SitePriceUAH`
 - `Price` та `PriceIndex` повністю виключені з UI
 - Fallback:
   - якщо `SitePriceUAH` порожня або некоректна →
     **“Ціну уточнюйте”**
 
-**Result:**
+### Result
+
 - P0 блокер знято
 - Двоякість ціни усунена
-- Каталог готовий до Phase 2
+- Каталог готовий до lead-сценаріїв
 
 ---
 
-## Messenger CTA — ACTUAL SNAPSHOT
+## Phase 2 — Lead Capture (Messenger)
 
-- Header CTA **«Зв’язатися з менеджером»** присутня на всіх сторінках
-- На Model Page передається:
-  - `ModelID`
-  - `SitePriceUAH`
-  - `ref=site_catalog__model_<modelId>`
-- Дубль CTA на сторінці моделі відсутній
-- Канал комунікації: **Messenger (ManyChat Entry Point)**
-
----
-
-## Phase 2 — Order / Lead Capture
-
-**Status:** ACTIVE ▶️
+**Status:** CLOSED ✅  
+**Date:** 2026-01-14
 
 ### Scope Phase 2
 
@@ -128,49 +122,22 @@ _Last update: 2026-01-16_
 ### Підтримувані сценарії (факт)
 
 - Готові окуляри (без визначення діоптрій)
-- Аправа як товар (без діоптрій)
+- Оправа як товар (без діоптрій)
 - Обговорення лінз — виключно через менеджера
 
 ---
 
-## Governance
+### Messenger CTA — ACTUAL SNAPSHOT
 
-### UX-FLOW
-
-- UX-FLOW v1.1 — **FROZEN**
-- Будь-які зміни UX:
-  - тільки через нове рішення
-  - з новою версією UX-FLOW
-
-### DEV-SCOPE
-
-**Дозволено:**
-- реалізація логіки Phase 2 (lead capture)
-- технічні покращення без зміни UX
-- рефакторинг, оптимізація, чистка коду
-
-**Заборонено:**
-- змінювати UX-флоу
-- додавати нові CTA або кнопки
-- реалізовувати підбір за діоптрією
-- інтегрувати оплату, AI, Online Mirror
-
-- [Phase 2] Model Page встановлює canonical LeadPayload v1 (ModelID, MarketingTitle, SitePriceUAH, Image, ref=site_catalog__model).
-
-## Phase 2 — Lead Capture (Messenger) — ACTUAL SNAPSHOT
-
-**Status:** CLOSED ✅  
-**Date:** 2026-01-14
-
-### Що реалізовано (факт)
-
-Реалізовано канонічну передачу контексту ліда з **Model Page** у Messenger
-відповідно до SSOT (`DECISIONS.md`, LeadPayload v1).
-
-Клік **«Звʼязатися з менеджером»** на сторінці моделі:
-- відкриває Messenger (ManyChat Entry Point)
-- передає повний, стандартизований контекст
-- однаковий payload бачать і клієнт, і менеджер
+- Header CTA **«Зв’язатися з менеджером»** присутня на всіх сторінках
+- На Model Page передається:
+  - `ModelID`
+  - `MarketingTitle`
+  - `SitePriceUAH`
+  - `Image`
+  - `ref = site_catalog__model`
+- Дубль CTA на сторінці моделі відсутній
+- Канал комунікації: **Messenger (ManyChat Entry Point)**
 
 ---
 
@@ -178,80 +145,110 @@ _Last update: 2026-01-16_
 
 Передається **СТРОГО**:
 
-- `ref = site_catalog__model`
 - `ModelID`
 - `MarketingTitle`
-- `SitePriceUAH`  
+- `SitePriceUAH`
   (рівно те, що показано в UI, включно з текстом **«Ціну уточнюйте»**)
-- `Image`  
-  (те саме зображення, яке бачив користувач на Model Page)
+- `Image`
+- `ref = site_catalog__model`
 
 **НЕ передається:**
 - `Price`
 - `PriceIndex`
 - будь-які “вгадані” діоптрії
-- `DiopterContext`  
-  (Phase 2 не включає сценарій «Для мого зору»)
+- `DiopterContext` (у Phase 2)
 
 ---
 
 ### Архітектурне рішення
 
 - Header CTA **НЕ формує payload**
-- **Model Page** є єдиним канонічним джерелом LeadPayload
-- Використано store як SSOT контексту:
+- **Model Page** — єдине канонічне джерело LeadPayload
+- Store використовується як SSOT контексту:
   - Model Page → встановлює payload
-  - Layout → читає payload  
-    або використовує fallback `ref = site_catalog__from_site`
+  - Layout → читає payload або fallback
+
 - UX-FLOW v1.1 **НЕ змінювався**
 
 ---
 
-### Перевірка
+## Phase 3 — Diopter Flow
 
-- Payload підтверджено на рівні згенерованого `m.me` URL
-- Обмеження Messenger / ManyChat враховані
-- Реальна передача працює стабільно
+**Status:** CLOSED ✅
+
+### Реалізовано (факт)
+
+- Сценарій «Для мого зору»
+- Вибір **однієї конкретної діоптрії** (±)
+- Фільтрація **Ready-моделей** по `DiopterValues`
+- Zero-results → автоматичний перехід у Messenger
+- Медична логіка **відсутня**
+- LeadPayload Phase 2 **не змінений**
 
 ---
 
-### Висновок
+## Phase 4 — UX Packaging & Copy
 
-- Phase 2 — Lead Capture реалізовано повністю та коректно
-- Контекст ліда стандартизований і прозорий для клієнта
-- Готово до використання менеджерами без додаткових UX або data-змін
+**Status:** IN PROGRESS ▶️
 
-# STATUS UPDATE — Phase 4.1 (Gallery UX Packaging, Mobile-first)
+---
 
-## Статус
-✅ **Phase 4.1 — ЗАВЕРШЕНО**
+## Phase 4.1 — Gallery UX Packaging (Mobile-first)
+
+**Status:** CLOSED ✅
 
 Коміт:
 - `97f84c1 — Phase 4.1: gallery mobile-first cards with images`
 
-## Що зроблено
-- Галерея моделей перероблена з технічного списку на **card-based товарну вітрину**
-- Реалізовано **mobile-first layout** (2 колонки на смартфоні)
-- Кожна модель відображається як окрема картка:
-  - фото моделі
-  - назва
-  - ціна
-- Галерея стабільно відображає **реальні фото моделей** (використовується те саме джерело, що і на сторінці моделі)
+### Реалізовано
 
-## Технічні гарантії
-- UX-FLOW v1.1 **не змінено**
-- Логіка фільтрації **не змінена**
-- Маршрути та URL **не змінені**
-- Нові CTA **не додавались**
-- Існуючі CTA **не змінювались**
-- LeadPayload / Phase 2 / Phase 3 **не зачеплені**
-- Зміни обмежені лише UI/UX пакуванням галереї
+- Галерея перероблена з технічного списку на **card-based товарну вітрину**
+- Mobile-first layout (2 колонки на смартфоні)
+- Картка моделі містить:
+  - фото
+  - назву
+  - ціну (`SitePriceUAH`)
+- Використовується реальне фото з SSOT
 
-## Результат
-- Галерея більше не виглядає як прототип або технічна сторінка
-- Mobile UX сприймається як нормальна товарна вітрина
-- Сайт **не соромно давати клієнтам** для перегляду моделей
-- Блок готовий до зовнішнього UX-тестування
+### Гарантії
 
-## Далі
-Phase 4.1 закрита. Можливий перехід до наступної підфази Phase 4.
+- UX-FLOW v1.1 — без змін
+- Логіка фільтрації — без змін
+- Маршрути та URL — без змін
+- CTA / LeadPayload — без змін
+
+---
+
+## Phase 4.2 — Model Page UX Packaging
+
+**Status:** IN PROGRESS ▶️
+
+### Partial progress (WIP)
+
+- Реалізовано full-screen lightbox для фото моделі
+- Використано native mobile zoom (pinch / double-tap)
+- Прибрано випадковий double-tap zoom  
+  (`touch-action: pan-x pan-y`)
+- Підсилено backdrop (`rgba(0,0,0,0.9)`)
+
+### Гарантії
+
+- Логіка — без змін
+- CTA — без змін
+- LeadPayload — без змін
+- UX-FLOW v1.1 — без змін
+
+### Примітка
+
+- Інші секції Model Page (hero-ієрархія, інформаційні блоки)
+  **ще не опрацьовані**
+- Phase 4.2 **НЕ завершена**
+
+---
+
+## Підсумок
+
+- Core, Lead, Diopter Flow — стабільні
+- Галерея упакована і готова до показу клієнтам
+- Model Page — у процесі UX-пакування
+- Система готова до подальшого поетапного UX-допрацювання
