@@ -105,7 +105,7 @@
     <div class="hero-card">
       <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
       <h1 class="title">{title}</h1>
-      <div class="subtle">{item.modelId}</div>
+     
     </div>
   </header>
 
