@@ -4,6 +4,8 @@
   import { goto } from '$app/navigation';
   import { onMount, onDestroy, tick } from 'svelte';
   import { managerLeadPayload } from '$lib/lead/managerContext.store';
+  
+
 
   type ModelItem = {
     modelId: string;
@@ -21,6 +23,7 @@
 
   export let data: { item: ModelItem };
   const item = data.item;
+
 
   function getPriceLabel(value: unknown): string {
     const n =
@@ -83,6 +86,7 @@
   function onWindowKeydown(e: KeyboardEvent): void {
     if (e.key === 'Escape' && isLightboxOpen) closeLightbox();
   }
+
 </script>
 
 <svelte:window on:keydown={onWindowKeydown} />
@@ -153,10 +157,12 @@
     </section>
   {/if}
 
-  <!-- CTA (same text & behavior) -->
-  <div class="cta">
-    <button type="button" class="back" on:click={viewMore}>Дивитись ще</button>
-  </div>
+<!-- CTA (same text & behavior) -->
+<div class="cta">
+  <button type="button" class="back" on:click={viewMore}>Дивитись ще</button>
+</div>
+
+
 
   <!-- LIGHTBOX: native zoom (no custom JS) -->
   {#if isLightboxOpen && item.mainImage}
@@ -253,12 +259,7 @@
     line-height: 1.2;
     font-weight: 900;
   }
-
-  .subtle {
-    font-size: 12px;
-    opacity: 0.6;
-  }
-
+  
   .card {
     padding: 14px;
     border-radius: 16px;
