@@ -4,6 +4,10 @@
   import { goto } from '$app/navigation';
   import { onMount, onDestroy, tick } from 'svelte';
   import { managerLeadPayload } from '$lib/lead/managerContext.store';
+  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { get } from 'svelte/store';
+
+
   
 
 
@@ -23,6 +27,38 @@
 
   export let data: { item: ModelItem };
   const item = data.item;
+
+  function normalizeBase(raw: string): string {
+  const trimmed = (raw ?? '').trim();
+  if (!trimmed) return 'https://m.me/101402489688578';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  return `https://${trimmed.replace(/^\/+/, '')}`;
+}
+
+function buildManagerUrl(pathname: string): string {
+  const base = normalizeBase(MANAGER_MESSENGER_URL);
+  const url = new URL(base);
+
+  const payload = get(managerLeadPayload);
+
+  if (payload) {
+    url.searchParams.set('ref', payload.ref);
+    url.searchParams.set('ModelID', payload.ModelID);
+    url.searchParams.set('MarketingTitle', payload.MarketingTitle);
+    url.searchParams.set('SitePriceUAH', payload.SitePriceUAH);
+    url.searchParams.set('Image', payload.Image);
+
+    if (payload.DiopterContext) {
+      url.searchParams.set('DiopterContext', payload.DiopterContext);
+    }
+
+    return url.toString();
+  }
+
+  url.searchParams.set('ref', 'site_catalog__from_site');
+  return url.toString();
+}
+
 
 
   function getPriceLabel(value: unknown): string {
@@ -87,6 +123,9 @@
     if (e.key === 'Escape' && isLightboxOpen) closeLightbox();
   }
 
+  $: managerUrl = buildManagerUrl($page.url.pathname);
+
+
 </script>
 
 <svelte:window on:keydown={onWindowKeydown} />
@@ -107,10 +146,22 @@
     {/if}
 
     <div class="hero-card">
-      <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
-      <h1 class="title">{title}</h1>
-     
-    </div>
+  <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
+
+  <!-- NEW: Messenger CTA -->
+  <a
+    class="manager-link"
+    href={managerUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Звʼязатися з менеджером у Messenger"
+  >
+    Звʼязатися з менеджером
+  </a>
+
+  <h1 class="title">{title}</h1>
+</div>
+
   </header>
 
   <!-- INFO -->
@@ -431,4 +482,22 @@
       width: min(1400px, 160vw);
     }
   }
+
+  .manager-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+}
+
+.manager-link:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
 </style>
