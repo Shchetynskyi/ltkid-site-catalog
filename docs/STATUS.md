@@ -290,3 +290,5 @@ _Last update: 2026-01-17_
 - Регрес продуктивності повністю усунено
 
 Phase 4.2.1 — Hero cleanup (ModelID hidden) — CLOSED
+
+Phase 4.2.2 — CLOSED: Visual Messenger CTA added to Model Page (mobile-safe)
