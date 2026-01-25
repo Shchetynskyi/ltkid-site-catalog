@@ -316,3 +316,12 @@ Phase 4.2.2 — CLOSED: Visual Messenger CTA added to Model Page (mobile-safe)
 ### Result
 - Галерея → Model Page → Messenger мають узгоджений diopter-контекст
 - Поведінка стабільна при refresh / share URL
+
+### Phase 4.6 — Diopter flow ↔ Model Page (safe return)
+**Status:** ✅ CLOSED
+
+- Додано безпечний вхід у diopter-flow зі сторінки моделі
+- Реалізовано контрольований return на Model Page
+- Виключено порожні галереї
+- Визначено fallback у Messenger
+- Архітектура відповідає SSOT
