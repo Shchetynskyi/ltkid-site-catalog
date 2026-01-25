@@ -35,29 +35,19 @@
   return `https://${trimmed.replace(/^\/+/, '')}`;
 }
 
-function buildManagerUrl(pathname: string): string {
+function buildManagerUrl(pathname: string, payload: any): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
   const url = new URL(base);
 
-  const payload = get(managerLeadPayload);
-
-  if (payload) {
+  if (payload && payload.ref) {
     url.searchParams.set('ref', payload.ref);
-    url.searchParams.set('ModelID', payload.ModelID);
-    url.searchParams.set('MarketingTitle', payload.MarketingTitle);
-    url.searchParams.set('SitePriceUAH', payload.SitePriceUAH);
-    url.searchParams.set('Image', payload.Image);
-
-    if (payload.DiopterContext) {
-      url.searchParams.set('DiopterContext', payload.DiopterContext);
-    }
-
     return url.toString();
   }
 
   url.searchParams.set('ref', 'site_catalog__from_site');
   return url.toString();
 }
+
 
 
 
@@ -84,16 +74,28 @@ function buildManagerUrl(pathname: string): string {
     goto('/gallery/frames/unisex');
   }
 
-  onMount(() => {
-    managerLeadPayload.set({
-      ModelID: item.modelId,
-      MarketingTitle: item.marketingTitle || item.modelId,
-      SitePriceUAH: getPriceLabel(item.SitePriceUAH),
-      Image: item.mainImage || '',
-      ref: 'site_catalog__model'
-      // DiopterContext intentionally absent in Phase 2
-    });
+ onMount(() => {
+  const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
+
+  const refParts = [
+    `mid=${item.modelId}`,
+    `t=${item.marketingTitle || item.modelId}`,
+    `p=${getPriceLabel(item.SitePriceUAH)}`,
+    item.mainImage ? `img=${item.mainImage}` : ''
+  ];
+
+  if (diopter) refParts.push(`d=${diopter}`);
+
+  managerLeadPayload.set({
+    ModelID: item.modelId,
+    MarketingTitle: item.marketingTitle || item.modelId,
+    SitePriceUAH: getPriceLabel(item.SitePriceUAH),
+    Image: item.mainImage || '',
+    ref: refParts.join('|'),
+    ...(diopter ? { DiopterContext: diopter } : {})
   });
+});
+
 
   onDestroy(() => {
     managerLeadPayload.set(null);
@@ -123,7 +125,9 @@ function buildManagerUrl(pathname: string): string {
     if (e.key === 'Escape' && isLightboxOpen) closeLightbox();
   }
 
-  $: managerUrl = buildManagerUrl($page.url.pathname);
+ $: managerUrl = buildManagerUrl($page.url.pathname, $managerLeadPayload);
+
+
 
 
 </script>

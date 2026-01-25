@@ -8,7 +8,7 @@ export type ManagerLeadPayloadV1 = {
   MarketingTitle: string;
   SitePriceUAH: string; // exactly as shown in UI (e.g. "Ціну уточнюйте" or "1234 грн")
   Image: string; // exactly the image user saw (main/preview)
-  ref: LeadRef;
+  ref: string; // dynamic ref payload for ManyChat
   DiopterContext?: string; // present ONLY when explicit diopter choice exists
 };
 
