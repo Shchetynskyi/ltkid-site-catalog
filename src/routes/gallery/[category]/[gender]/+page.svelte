@@ -303,9 +303,11 @@
       {#each visibleItems as item (item.modelId)}
         <a
           class="product-card"
-          href={`/model/${encodeURIComponent(item.modelId)}?from=${encodeURIComponent(
-            $page.url.pathname + $page.url.search
-          )}`}
+          href={`/model/${encodeURIComponent(item.modelId)}?${new URLSearchParams({
+  ...(diopter ? { diopter } : {}),
+  from: $page.url.pathname + $page.url.search
+}).toString()}`}
+
         >
           <div class="media">
             {#if item.mainImage}
