@@ -121,6 +121,12 @@
 
   $: diopter = readDiopterFromUrl();
 
+  $: returnUrl = $page.url.searchParams.get('return')?.trim() || null;
+
+  $: returnModelId = $page.url.searchParams.get('returnModelId')?.trim() || null;
+
+
+
   // base width filter (existing behavior)
   $: widthFiltered = filterByFrameWidth(data.items, activeRange);
 
@@ -237,11 +243,14 @@
 </script>
 
 <section class="gallery">
-  {#if notice === 'model_not_found'}
-    <div class="notice">
-      Модель не знайдена. Показуємо актуальний каталог.
-    </div>
-  {/if}
+{#if returnModelId && diopter && !visibleItems.some(item => item.modelId === returnModelId)}
+  <div class="notice">
+    Цієї моделі немає для {diopter}. Ось інші варіанти.
+  </div>
+{/if}
+
+
+
 
   <div class="gallery-toolbar">
     <div class="filters" aria-label="Фільтр ширини оправи">
@@ -302,11 +311,17 @@
     <div class="gallery-grid" aria-label="Галерея моделей">
       {#each visibleItems as item (item.modelId)}
         <a
-          class="product-card"
-          href={`/model/${encodeURIComponent(item.modelId)}?${new URLSearchParams({
-  ...(diopter ? { diopter } : {}),
-  from: $page.url.pathname + $page.url.search
-}).toString()}`}
+  class="product-card"
+  href={
+    returnUrl && item.modelId === returnUrl.split('/model/')[1]
+      ? `${returnUrl}?diopter=${encodeURIComponent(diopter!)}`
+      : `/model/${encodeURIComponent(item.modelId)}?${new URLSearchParams({
+          ...(diopter ? { diopter } : {}),
+          from: $page.url.pathname + $page.url.search
+        }).toString()}`
+  }
+>
+
 
         >
           <div class="media">

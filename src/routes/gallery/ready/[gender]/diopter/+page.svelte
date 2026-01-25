@@ -3,13 +3,29 @@
 
   const gender = $page.params.gender;
 
+    $: returnUrl = $page.url.searchParams.get('return')?.trim() || '';
+  const withReturn = (path: string) => (returnUrl ? `${path}?return=${encodeURIComponent(returnUrl)}` : path);
+
+
   function goPlus() {
-    window.location.href = `/gallery/ready/${gender}/diopter/plus`;
-  }
+  const returnModelId = $page.url.searchParams.get('returnModelId');
+  const base = `/gallery/ready/${gender}/diopter/plus`;
+  window.location.href = returnModelId
+    ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
+    : withReturn(base);
+}
+
+
 
   function goMinus() {
-    window.location.href = `/gallery/ready/${gender}/diopter/minus`;
-  }
+  const returnModelId = $page.url.searchParams.get('returnModelId');
+  const base = `/gallery/ready/${gender}/diopter/minus`;
+  window.location.href = returnModelId
+    ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
+    : withReturn(base);
+}
+
+
 
   function goMessenger() {
     window.location.href = import.meta.env.VITE_MESSENGER_URL;

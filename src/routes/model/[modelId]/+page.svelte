@@ -18,6 +18,9 @@
 
     SitePriceUAH?: string | number | null;
 
+      gender?: string;
+
+
     frameWidth?: number | null;
     frameHeight?: number | null;
 
@@ -27,6 +30,9 @@
 
   export let data: { item: ModelItem };
   const item = data.item;
+    // UI only: diopter context from URL query (?diopter=+3)
+  $: diopterUi = $page.url.searchParams.get('diopter')?.trim() || '';
+
 
   function normalizeBase(raw: string): string {
   const trimmed = (raw ?? '').trim();
@@ -151,6 +157,24 @@ function buildManagerUrl(pathname: string, payload: any): string {
 
     <div class="hero-card">
   <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
+  {#if diopterUi}
+  <div class="diopter-badge">
+    Підібрано для діоптрії: {diopterUi}
+  </div>
+{:else}
+  <a
+    class="pick-vision-link"
+    href={`/gallery/ready/${encodeURIComponent(item.gender || 'унісекс')}/diopter?return=${encodeURIComponent(`/model/${item.modelId}`)}&returnModelId=${encodeURIComponent(item.modelId)}`}
+
+
+
+    aria-label="Підібрати цю модель під мій зір"
+  >
+    Підібрати під мій зір
+  </a>
+{/if}
+
+
 
   <!-- NEW: Messenger CTA -->
   <a
@@ -307,6 +331,19 @@ function buildManagerUrl(pathname: string, payload: any): string {
     line-height: 1.05;
     font-weight: 1000;
   }
+
+  .diopter-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+}
+
 
   .title {
     margin: 0;
@@ -503,5 +540,24 @@ function buildManagerUrl(pathname: string, payload: any): string {
   transform: scale(0.96);
   opacity: 0.85;
 }
+
+.pick-vision-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  background: transparent;
+  color: #000;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+}
+
+.pick-vision-link:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
 
 </style>

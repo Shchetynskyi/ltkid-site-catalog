@@ -117,3 +117,20 @@ export function filterByCategoryAndGender(
 
   return byCategory;
 }
+
+// ====== Diopter support (SSOT, server-side only) ======
+const DIO_RE = /[+-]\d+(?:\.\d{2})/g;
+
+function extractDiopters(raw?: string | null): string[] {
+  if (!raw) return [];
+  const matches = raw.match(DIO_RE);
+  return matches ?? [];
+}
+
+export function modelSupportsDiopter(
+  item: CatalogItem,
+  diopter: string
+): boolean {
+  if (!diopter) return false;
+  return extractDiopters(item.DiopterValues).includes(diopter);
+}

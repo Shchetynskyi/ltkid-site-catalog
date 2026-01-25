@@ -10,9 +10,22 @@
 
   const gender = $page.params.gender;
 
-  function selectDiopter(value: string) {
-    window.location.href = `/gallery/ready/${gender}?diopter=${encodeURIComponent(value)}`;
-  }
+ function selectDiopter(value: string) {
+  const returnUrl = $page.url.searchParams.get('return');
+  const returnModelId = $page.url.searchParams.get('returnModelId');
+
+  const base = `/gallery/ready/${gender}?diopter=${encodeURIComponent(value)}`;
+
+  const params = new URLSearchParams();
+  if (returnUrl) params.set('return', returnUrl);
+  if (returnModelId) params.set('returnModelId', returnModelId);
+
+  window.location.href = params.toString()
+    ? `${base}&${params.toString()}`
+    : base;
+}
+
+
 </script>
 
 <section class="diopter-values">

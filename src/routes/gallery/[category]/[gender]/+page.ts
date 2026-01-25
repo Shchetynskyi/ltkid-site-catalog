@@ -3,9 +3,11 @@ import type { PageLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import {
   filterByCategoryAndGender,
+  modelSupportsDiopter,
   type Category,
   type Gender
 } from '$lib/catalog/catalog.selectors';
+
 import { MANAGER_MESSENGER_URL } from '$lib/config/links';
 
 function normalizeBase(raw: string): string {
@@ -50,11 +52,29 @@ export const load: PageLoad = async ({ params, parent, url }) => {
   const gender = params.gender as Gender;
 
   const activeRange = url.searchParams.get('w') ?? 'ALL';
-  const diopter = (url.searchParams.get('diopter') ?? '').trim() || null;
+  const rawDiopter = url.searchParams.get('diopter') ?? '';
+const diopter = rawDiopter.replace(/\s+/g, '').trim() || null;
+
   const isReady = category === 'ready';
+
+  
+
 
   console.time('[P3] filterByCategoryAndGender');
   const filtered = filterByCategoryAndGender(catalog, category, gender);
+
+const returnModelId = url.searchParams.get('returnModelId');
+
+if (isReady && diopter && returnModelId) {
+  const model = filtered.find((i) => i.modelId === returnModelId);
+  if (model && modelSupportsDiopter(model as any, diopter)) {
+    throw redirect(
+      302,
+      `/model/${encodeURIComponent(returnModelId)}?diopter=${encodeURIComponent(diopter)}`
+    );
+  }
+}
+
   console.timeEnd('[P3] filterByCategoryAndGender');
 
   // NOTE: width filter remains in +page.svelte (existing behavior).
@@ -65,13 +85,12 @@ export const load: PageLoad = async ({ params, parent, url }) => {
     console.time('[P3] diopter precheck');
     let hasAny = false;
     for (const it of filtered) {
-      // width filter is not applied here; even without it, if diopter has zero matches,
-      // it will stay zero after width filtering too. This keeps correctness.
-      if (diopterContains((it as any).DiopterValues ?? null, diopter)) {
-        hasAny = true;
-        break;
-      }
-    }
+  if (modelSupportsDiopter(it as any, diopter)) {
+    hasAny = true;
+    break;
+  }
+}
+
     console.timeEnd('[P3] diopter precheck');
 
     if (!hasAny) {
