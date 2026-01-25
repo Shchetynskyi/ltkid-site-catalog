@@ -292,3 +292,27 @@ _Last update: 2026-01-17_
 Phase 4.2.1 — Hero cleanup (ModelID hidden) — CLOSED
 
 Phase 4.2.2 — CLOSED: Visual Messenger CTA added to Model Page (mobile-safe)
+
+## Phase 4.4 — Model Page: Diopter Context
+
+**Status:** CLOSED ✅
+
+### Реалізовано
+- Додано пасивний UI-бейдж з обраною діоптрією на Model Page
+- Бейдж показується тільки якщо `diopter` є у query
+- Без інтерактивності та без бізнес-логіки
+
+---
+
+## Phase 4.4.1 — Preserve diopter in navigation
+
+**Status:** CLOSED ✅
+
+### Реалізовано
+- `diopter` передається напряму в URL Model Page
+- `from` використовується лише для back-навігації
+- Контекст діоптрії не губиться при переході з галереї
+
+### Result
+- Галерея → Model Page → Messenger мають узгоджений diopter-контекст
+- Поведінка стабільна при refresh / share URL
