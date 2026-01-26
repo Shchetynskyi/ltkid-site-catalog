@@ -325,3 +325,9 @@ Phase 4.2.2 — CLOSED: Visual Messenger CTA added to Model Page (mobile-safe)
 - Виключено порожні галереї
 - Визначено fallback у Messenger
 - Архітектура відповідає SSOT
+
+P0 BUG: Model Page “Дивитись ще” — nested diopter in from
+
+Status: CLOSED
+
+Fix: sanitize from before back navigation
