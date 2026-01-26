@@ -70,15 +70,28 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   function viewMore(): void {
-    const from = $page.url.searchParams.get('from');
-    if (from) {
+  const fromRaw = $page.url.searchParams.get('from');
+  if (fromRaw) {
+    try {
+      const decoded = decodeURIComponent(fromRaw);
+      const u = new URL(decoded, 'https://local.base'); // підтримка relative path
+      u.searchParams.delete('diopter');                 // ключовий FIX
+
+      const qs = u.searchParams.toString();
+      const cleaned = `${u.pathname}${qs ? `?${qs}` : ''}${u.hash || ''}`;
+
+      goto(cleaned);
+      return;
+    } catch {
       try {
-        goto(decodeURIComponent(from));
+        goto(decodeURIComponent(fromRaw));
         return;
       } catch {}
     }
-    goto('/gallery/frames/unisex');
   }
+  goto('/gallery/frames/unisex');
+}
+
 
  onMount(() => {
   const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
