@@ -349,3 +349,14 @@ Fix: sanitize from before back navigation
 
 ### Result
 - Продукт готовий до launch з 2 сценаріями
+
+## Phase 5.2 — Home Entry (Gender-First Copy)
+
+**Status:** CLOSED ✅  
+**Date:** 2026-01-27
+
+### Реалізовано
+- Home entry copy переведено у **gender-first**
+- Основний текст: «Жіночі» / «Чоловічі»
+- Контекстний текст: «Готові окуляри»
+- Логіка, маршрути, UX-FLOW — без змін
