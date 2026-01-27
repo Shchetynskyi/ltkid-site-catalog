@@ -331,3 +331,21 @@ P0 BUG: Model Page “Дивитись ще” — nested diopter in from
 Status: CLOSED
 
 Fix: sanitize from before back navigation
+
+# STATUS.md — додати (після Phase 5 / або в кінці списку фаз)
+
+## Phase 5.1 — Home Entry (READY_ONLY)
+
+**Status:** CLOSED ✅  
+**Date:** 2026-01-27
+
+### Реалізовано (fact)
+- Home переведено у режим **READY_ONLY**
+- На Home відображаються лише 2 сценарії:
+  - «Готові окуляри · Жіночі»
+  - «Готові окуляри · Чоловічі»
+- Сценарії «Оправи» не рендеряться в UI (без disabled/placeholder)
+- UX-FLOW v1.1, маршрути, тексти — без змін
+
+### Result
+- Продукт готовий до launch з 2 сценаріями

@@ -4,40 +4,36 @@
 
   export let data: PageData;
 
-  function hrefFor(card: { category: string; gender: string }): string {
+  // Launch mode
+  const LAUNCH_MODE = 'READY_ONLY';
+
+  const cards =
+    LAUNCH_MODE === 'READY_ONLY'
+      ? data.cards.filter((c) => c.category === 'ready')
+      : data.cards;
+
+  function hrefFor(card: { category: string; gender: string }) {
     const gender = card.gender === 'жіноча' ? 'жіноча' : 'чоловіча';
-
-    // UX-FLOW v1.1:
-    // ready  -> проміжний екран
-    // frames -> одразу галерея
-    if (card.category === 'ready') {
-      return `/gallery/ready/${gender}/select`;
-    }
-
-    return `/gallery/${card.category}/${gender}`;
+    return `/gallery/ready/${gender}/select`;
   }
 
-  function titleFor(card: { category: string; gender: string }) {
-    if (card.category === 'ready') {
-      return card.gender === 'жіноча'
-        ? 'Готові окуляри для жінок'
-        : 'Готові окуляри для чоловіків';
-    }
-
-    return card.gender === 'жіноча' ? 'Жіночі оправи' : 'Чоловічі оправи';
+  function titleFor(card: { gender: string }) {
+    return card.gender === 'жіноча'
+      ? 'Готові окуляри для жінок'
+      : 'Готові окуляри для чоловіків';
   }
 </script>
 
 <section class="home">
-  <div class="home__grid">
-    {#each data.cards as card}
+  <div class="home__grid home__grid--ready">
+    {#each cards as card}
       <a
         href={hrefFor(card)}
-        data-sveltekit-preload-data="hover"
-        data-sveltekit-preload-code="hover"
         class="home__card"
       >
-        <div class="home__card-title">{titleFor(card)}</div>
+        <span class="home__card-title">
+          {titleFor(card)}
+        </span>
       </a>
     {/each}
   </div>
@@ -45,35 +41,53 @@
 
 <style>
   .home {
-    max-width: 720px; /* мобільний пріоритет */
+    max-width: 720px;
     margin: 0 auto;
     padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
 
-  .home__grid {
+  /* READY_ONLY = 2 великі сцени */
+  .home__grid--ready {
     display: grid;
-    grid-template-columns: 1fr; /* мобільний 1 колонка */
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    min-height: calc(100vh - 120px);
   }
 
   .home__card {
-    display: block;
-    padding: 18px 16px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 180px;
+    border-radius: 18px;
     text-decoration: none;
     color: inherit;
-    background: #fff;
-  }
 
-  .home__card:active {
-    border-color: #999;
+    background: linear-gradient(
+      180deg,
+      #f6f7f8 0%,
+      #eef1f4 100%
+    );
+
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .home__card-title {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 14px;
+    padding: 12px 14px;
+
     font-size: 18px;
-    font-weight: 600;
-    line-height: 1.2;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .home__card:active {
+    border-color: rgba(0, 0, 0, 0.18);
   }
 
   @media (min-width: 640px) {
@@ -82,17 +96,13 @@
       padding: 32px 16px;
     }
 
-    .home__grid {
-      grid-template-columns: repeat(2, minmax(240px, 1fr)); /* десктоп 2x2 */
+    .home__grid--ready {
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
 
     .home__card {
-      padding: 24px;
-    }
-
-    .home__card:hover {
-      border-color: #999;
+      min-height: 220px;
     }
   }
 </style>
