@@ -414,3 +414,17 @@ Home-екран відображає лише сценарії готових о
 - «Готові окуляри · Чоловічі»
 
 Сценарії «Оправи» тимчасово приховані з UI (без disabled/placeholder).
+
+## 2026-01-30 — Telegram in-app System Back (WebView) = platform limitation
+
+**Decision:** Поведінка system back у Telegram in-app browser (WebView), коли натискання “Back” закриває webview замість повернення на попередній екран, вважається **platform limitation**, а не дефектом SITE-CATALOG.
+
+**Constraints:**
+- Не додаємо кастомну кнопку Back (UX-FLOW v1.1 FROZEN).
+- Не змінюємо маршрути/URL/тексти/флоу під Telegram.
+- Навігація продукту залишається стандартною SPA-навігацією (SvelteKit `goto()`), без кастомних history-хаків.
+
+**Acceptance:**
+- У звичайних браузерах (Chrome/Safari, mobile/desktop) system back працює очікувано.
+- У Telegram in-app: поведінка back не “фікситься” кодом, і це приймається як обмеження платформи.
+- Рекомендація для комунікацій: “Для коректної навігації відкрийте в браузері”.

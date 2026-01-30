@@ -398,3 +398,9 @@ Fix: sanitize from before back navigation
 ## Phase 5.5  Ready Flow / Second Screen
 **Status:** CLOSED 
 
+## 2026-01-30 — P0: Mobile System Back (Telegram WebView)
+
+**Status:** CLOSED ✅  
+**Branch:** feature/catalog-core  
+**Result:** Not a product defect — platform limitation (Telegram in-app browser).  
+**Action:** SSOT decision recorded in DECISIONS.md. Navigation code kept clean (SPA `goto()`), debug/history hacks removed.
