@@ -378,3 +378,23 @@ Fix: sanitize from before back navigation
 
 ### Result
 - Home готовий як рекламний entry-екран для FB-аудиторії
+
+## Phase 5.5 — Ready Flow / Second Screen
+
+**Status:** CLOSED ✅  
+**Date:** 2026-01-XX
+
+### Реалізовано
+- Фінальний UI другого екрану Ready-flow
+- Два сценарії:
+  - «Підібрати під мій зір» — головний
+  - «Показати всі» — другорядний
+- Реальні фінальні зображення (без плейсхолдерів)
+- Візуально узгоджено з Home
+- Логіка, маршрути, UX-FLOW — без змін
+<!-- Phase 5.5 closed -->
+
+
+## Phase 5.5  Ready Flow / Second Screen
+**Status:** CLOSED 
+
