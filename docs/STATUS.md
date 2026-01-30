@@ -404,3 +404,28 @@ Fix: sanitize from before back navigation
 **Branch:** feature/catalog-core  
 **Result:** Not a product defect — platform limitation (Telegram in-app browser).  
 **Action:** SSOT decision recorded in DECISIONS.md. Navigation code kept clean (SPA `goto()`), debug/history hacks removed.
+
+## Phase 6 — Visual Consistency (All Existing Screens)
+
+**Status:** OPEN ▶️  
+**Date:** 2026-01-30
+
+### Scope
+- Узгодження візуального стилю **ВСІХ ВЖЕ ІСНУЮЧИХ екранів**.
+- Home та Ready Second Screen — **візуальний еталон**.
+
+### Included
+- кольорова система
+- типографіка
+- відступи / ритм
+- Header (читабельність, розміри, вирівнювання)
+- візуальні CTA (без зміни текстів)
+
+### Forbidden
+- нові екрани
+- нові сценарії
+- нові CTA / тексти
+- зміни UX-FLOW або логіки
+
+### Goal
+- Візуально цілісний продукт на всіх існуючих екранах.
