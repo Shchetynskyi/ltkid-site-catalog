@@ -24,7 +24,7 @@
       class="card__image"
       style={`background-image: url('/ready-select/${genderKey}/pick.jpg?v=1');`}
     ></div>
-    <div class="card__overlay">
+    <div class="card__content">
       <div class="card__title">Підібрати під мій зір</div>
     </div>
   </a>
@@ -35,42 +35,35 @@
       class="card__image"
       style={`background-image: url('/ready-select/${genderKey}/show-all.jpg?v=1');`}
     ></div>
-    <div class="card__overlay">
+    <div class="card__content">
       <div class="card__title">Показати всі</div>
     </div>
   </a>
 </section>
 
 <style>
+  /* Мобільний first */
   .ready-select {
-    min-height: calc(100vh - var(--header-height, 0px));
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 16px;
+    gap: 12px;
+    padding: 12px;
   }
 
-  /* 1:1 як на Home — картка керує формою, не фото */
   .card {
     position: relative;
     display: block;
     border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
-    color: inherit;
-    aspect-ratio: 1 / 1; /* мобільний: квадрат (як Home) */
-  }
 
-  /* desktop: дві картки поруч, як на Home */
-  @media (min-width: 900px) {
-    .ready-select {
-      grid-template-columns: 1fr 1fr;
-      align-items: start;
-    }
+    /* Стабільна геометрія, ближче до Home */
+    min-height: 170px;
+    height: 36vh;
+    max-height: 300px;
 
-    .card {
-      aspect-ratio: 4 / 3; /* близько до Home-геометрії */
-    }
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.10);
+    border: 1px solid rgba(0, 0, 0, 0.12);
   }
 
   .card__image {
@@ -81,41 +74,39 @@
     background-repeat: no-repeat;
   }
 
-  .card__overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  padding: 26px 26px 72px; /* ↑ підняли текст */
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.58),
-    rgba(0, 0, 0, 0.22) 45%,
-    rgba(0, 0, 0, 0.06) 70%,
-    rgba(0, 0, 0, 0)
-  );
-}
+  /* Плашка — як на Home */
+  .card__content {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 14px;
+    z-index: 1;
 
+    padding: 10px 14px;
+    text-align: center;
 
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 14px;
+
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
 
   .card__title {
-  color: #fff;
-  font-weight: 700;
-  font-size: clamp(28px, 4.6vw, 46px);
-  line-height: 1.05;
-  letter-spacing: 0.2px;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
-}
-
-
+    color: #fff;
+    font-weight: 700;
+    font-size: clamp(26px, 5.6vw, 40px);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
 
   .card--primary {
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
     outline: 2px solid rgba(255, 135, 35, 0.22);
   }
 
   .card--secondary {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     outline: 1px solid rgba(0, 0, 0, 0.08);
   }
 
@@ -130,5 +121,21 @@
 
   .card:active {
     transform: scale(0.99);
+  }
+
+  /* Desktop */
+  @media (min-width: 900px) {
+    .ready-select {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      gap: 20px;
+      padding: 16px;
+    }
+
+    .card {
+      height: 320px;
+      max-height: none;
+      border-radius: 22px;
+    }
   }
 </style>
