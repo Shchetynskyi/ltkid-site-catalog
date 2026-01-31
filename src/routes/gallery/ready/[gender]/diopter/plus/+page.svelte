@@ -11,21 +11,19 @@
   const gender = $page.params.gender;
 
   function selectDiopter(value: string) {
-  const returnUrl = $page.url.searchParams.get('return');
-  const returnModelId = $page.url.searchParams.get('returnModelId');
+    const returnUrl = $page.url.searchParams.get('return');
+    const returnModelId = $page.url.searchParams.get('returnModelId');
 
-  const base = `/gallery/ready/${gender}?diopter=${encodeURIComponent(value)}`;
+    const base = `/gallery/ready/${gender}?diopter=${encodeURIComponent(value)}`;
 
-  const params = new URLSearchParams();
-  if (returnUrl) params.set('return', returnUrl);
-  if (returnModelId) params.set('returnModelId', returnModelId);
+    const params = new URLSearchParams();
+    if (returnUrl) params.set('return', returnUrl);
+    if (returnModelId) params.set('returnModelId', returnModelId);
 
-  window.location.href = params.toString()
-    ? `${base}&${params.toString()}`
-    : base;
-}
-
-
+    window.location.href = params.toString()
+      ? `${base}&${params.toString()}`
+      : base;
+  }
 </script>
 
 <section class="diopter-values">
@@ -37,21 +35,26 @@
 </section>
 
 <style>
+  @import '$lib/ui/tokens.css';
+
   .diopter-values {
     min-height: calc(100vh - var(--header-height, 0px));
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    padding: 16px;
+    gap: var(--ui-space-s);
+    padding: var(--ui-page-pad-mobile);
   }
 
   .value-btn {
-    padding: 16px 8px;
-    border-radius: 14px;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    background: rgba(0, 0, 0, 0.05);
-    font-size: 16px;
-    font-weight: 600;
+    padding: var(--ui-pad-18) var(--ui-pad-12);
+    border-radius: var(--ui-radius-m);
+    border: 1px solid var(--ui-border-12);
+    background: var(--ui-surface-05);
+
+    /* КЛЮЧОВА ЗМІНА ДЛЯ ЛЮДЕЙ ЗІ СЛАБКИМ ЗОРОМ */
+    font-size: 22px;
+    font-weight: var(--ui-weight-800);
+
     cursor: pointer;
   }
 </style>
