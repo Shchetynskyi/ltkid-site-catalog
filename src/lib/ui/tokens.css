@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Phase 6 UI Tokens (ISOLATED)
+   --------------------------------------------------------------------------
+   IMPORTANT:
+   - DO NOT import globally (app.css, +layout.svelte, etc.)
+   - Use ONLY via local imports on NEW / NON-FINAL screens
+   - NEVER apply to:
+     * Home (/)
+     * Select (Ready Second Screen)
+     * Model Page (/model/[modelId])
+   - Any change requires explicit product approval
+   ========================================================================== */
+
+:root {
+  /* spacing */
+  --ui-space-xs: 10px;
+  --ui-space-s: 12px;
+  --ui-space-m: 16px;
+  --ui-space-l: 20px;
+
+  --ui-pad-12: 12px;
+  --ui-pad-14: 14px;
+  --ui-pad-16: 16px;
+  --ui-pad-18: 18px;
+
+  --ui-page-pad-mobile: 16px;
+  --ui-page-pad-desktop-min: 16px;
+  --ui-page-pad-desktop-max: 32px;
+  --ui-sticky-reserve: 96px;
+
+  /* radius */
+  --ui-radius-xs: 12px;
+  --ui-radius-s: 14px;
+  --ui-radius-m: 16px;
+  --ui-radius-l: 18px;
+  --ui-radius-xl: 22px;
+  --ui-radius-pill: 999px;
+
+  /* typography (sizes/weights only) */
+  --ui-text-meta: 13px;
+  --ui-text-body: 14px;
+  --ui-text-body-strong: 15px;
+
+  --ui-text-cta: 18px;
+  --ui-text-title: 20px;
+  --ui-text-hero-min: 34px;
+  --ui-text-hero-max: 40px;
+
+  --ui-weight-600: 600;
+  --ui-weight-700: 700;
+  --ui-weight-800: 800;
+  --ui-weight-900: 900;
+
+  --ui-lh-tight: 1.05;
+  --ui-lh-normal: 1.15;
+  --ui-lh-body: 1.5;
+
+  /* colors (observed) */
+  --ui-black: #000000;
+  --ui-white: #ffffff;
+  --ui-gray-text: #555555;
+
+  --ui-surface-04: rgba(0, 0, 0, 0.04);
+  --ui-surface-05: rgba(0, 0, 0, 0.05);
+  --ui-surface-06: rgba(0, 0, 0, 0.06);
+
+  --ui-overlay-45: rgba(0, 0, 0, 0.45);
+  --ui-overlay-90: rgba(0, 0, 0, 0.9);
+  --ui-glass-92: rgba(255, 255, 255, 0.92);
+
+  --ui-border-12: rgba(0, 0, 0, 0.12);
+}

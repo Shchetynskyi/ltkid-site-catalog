@@ -3,29 +3,25 @@
 
   const gender = $page.params.gender;
 
-    $: returnUrl = $page.url.searchParams.get('return')?.trim() || '';
-  const withReturn = (path: string) => (returnUrl ? `${path}?return=${encodeURIComponent(returnUrl)}` : path);
-
+  $: returnUrl = $page.url.searchParams.get('return')?.trim() || '';
+  const withReturn = (path: string) =>
+    returnUrl ? `${path}?return=${encodeURIComponent(returnUrl)}` : path;
 
   function goPlus() {
-  const returnModelId = $page.url.searchParams.get('returnModelId');
-  const base = `/gallery/ready/${gender}/diopter/plus`;
-  window.location.href = returnModelId
-    ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
-    : withReturn(base);
-}
-
-
+    const returnModelId = $page.url.searchParams.get('returnModelId');
+    const base = `/gallery/ready/${gender}/diopter/plus`;
+    window.location.href = returnModelId
+      ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
+      : withReturn(base);
+  }
 
   function goMinus() {
-  const returnModelId = $page.url.searchParams.get('returnModelId');
-  const base = `/gallery/ready/${gender}/diopter/minus`;
-  window.location.href = returnModelId
-    ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
-    : withReturn(base);
-}
-
-
+    const returnModelId = $page.url.searchParams.get('returnModelId');
+    const base = `/gallery/ready/${gender}/diopter/minus`;
+    window.location.href = returnModelId
+      ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
+      : withReturn(base);
+  }
 
   function goMessenger() {
     window.location.href = import.meta.env.VITE_MESSENGER_URL;
@@ -56,11 +52,13 @@
 </section>
 
 <style>
+  @import '$lib/ui/tokens.css';
+
   .diopter {
     min-height: calc(100vh - var(--header-height, 0px));
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    padding: var(--ui-page-pad-mobile);
   }
 
   .diopter__intro {
@@ -68,29 +66,29 @@
   }
 
   .diopter__title {
-    font-size: 22px;
-    font-weight: 600;
+    font-size: var(--ui-text-title);
+    font-weight: var(--ui-weight-600);
     margin-bottom: 6px;
   }
 
   .diopter__text {
-    font-size: 14px;
-    color: #555;
+    font-size: var(--ui-text-body);
+    color: var(--ui-gray-text);
   }
 
   .diopter__actions {
     flex: 1;
     display: grid;
     grid-template-rows: 1fr 1fr 1fr;
-    gap: 16px;
+    gap: var(--ui-space-m);
   }
 
   .btn {
-    border-radius: 18px;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    background: rgba(0, 0, 0, 0.05);
-    font-size: 18px;
-    font-weight: 600;
+    border-radius: var(--ui-radius-l);
+    border: 1px solid var(--ui-border-12);
+    background: var(--ui-surface-05);
+    font-size: var(--ui-text-cta);
+    font-weight: var(--ui-weight-600);
     cursor: pointer;
   }
 
