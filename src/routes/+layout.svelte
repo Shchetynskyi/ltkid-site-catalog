@@ -1,5 +1,6 @@
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
+  import '../app.css';
   import { page } from '$app/stores';
   import { get } from 'svelte/store';
   import { MANAGER_MESSENGER_URL } from '$lib/config/links';
