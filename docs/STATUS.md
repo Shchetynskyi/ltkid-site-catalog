@@ -429,3 +429,14 @@ Fix: sanitize from before back navigation
 
 ### Goal
 - Візуально цілісний продукт на всіх існуючих екранах.
+
+## Global Style Foundation (Pre-Phase 6)
+
+**Status:** CLOSED ✅  
+**Date:** 2026-01-30
+
+### Result
+- Додано мінімальний global style layer (`app.css`)
+- UI більше не browser default
+- Жоден екран не рефакторився
+- Phase 6 (Visual Consistency) розблокована

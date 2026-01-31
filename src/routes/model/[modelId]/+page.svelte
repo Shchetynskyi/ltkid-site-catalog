@@ -121,9 +121,10 @@ function buildManagerUrl(pathname: string, payload: any): string {
   });
 
   const title =
-    item.marketingTitle && item.marketingTitle.trim()
-      ? item.marketingTitle
-      : 'Модель окулярів';
+  item.marketingTitle && item.marketingTitle.trim()
+    ? item.marketingTitle
+    : 'Окуляри';
+
 
   // Lightbox (native zoom)
   let isLightboxOpen = false;
@@ -286,12 +287,15 @@ function buildManagerUrl(pathname: string, payload: any): string {
 
 <style>
   .model {
-    display: grid;
-    gap: 12px;
-    padding: 12px 12px 96px;
-    max-width: 720px;
-    margin: 0 auto;
-  }
+  display: grid;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+  padding-bottom: calc(16px + 96px);
+}
+
+
 
   .hero {
     display: grid;
@@ -299,89 +303,111 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   .hero-media {
-    width: 100%;
-    padding: 0;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    background: #f3f3f3;
-    position: relative;
-    cursor: zoom-in;
-    text-align: left;
-  }
-
-  .hero-image {
-    width: 100%;
-    display: block;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-  }
-
-  .zoom-hint {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    background: rgba(0, 0, 0, 0.75);
-    color: #fff;
-    font-weight: 900;
-    font-size: 12px;
-    padding: 8px 10px;
-    border-radius: 999px;
-  }
-
-  .hero-card {
-    padding: 14px;
-    border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    background: #fff;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-    display: grid;
-    gap: 6px;
-  }
-
-  .price {
-    font-size: 28px;
-    line-height: 1.05;
-    font-weight: 1000;
-  }
-
-  .diopter-badge {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 900;
+  width: 100%;
+  padding: 0;
+  border-radius: 22px;
+  overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(0, 0, 0, 0.04);
+  background: #fff;
+  position: relative;
+  cursor: zoom-in;
+  text-align: left;
 }
 
 
+  .hero-image {
+  width: 100%;
+  display: block;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 22px;
+}
+
+
+  .zoom-hint {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+
+  .hero-card {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  display: grid;
+  gap: 10px;
+}
+
+
+
+
+
+
+  .price {
+  font-size: 32px;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+
+  .diopter-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: clamp(16px, 5.5vw, 20px);
+
+  line-height: 1.25;
+  font-weight: 900;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+
+
+
   .title {
-    margin: 0;
-    font-size: 18px;
-    line-height: 1.2;
-    font-weight: 900;
-  }
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
   
   .card {
-    padding: 14px;
-    border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    background: #fff;
-    display: grid;
-    gap: 10px;
-  }
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  display: grid;
+  gap: 16px;
+}
+
+
+
 
   .section-title {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    opacity: 0.65;
-  }
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
 
   .specs {
     display: grid;
@@ -407,14 +433,16 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   .spec-label {
-    font-size: 14px;
-    opacity: 0.78;
-  }
+  font-size: 15px;
+  opacity: 0.8;
+}
+
 
   .spec-value {
-    font-size: 14px;
-    text-align: right;
-  }
+  font-size: 15px;
+  text-align: right;
+}
+
 
   .services {
     display: grid;
@@ -433,26 +461,31 @@ function buildManagerUrl(pathname: string, payload: any): string {
 
   /* STICKY CTA */
   .cta {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(0, 0, 0, 0.10);
-  }
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
 
   .back {
-    width: 100%;
-    border: 1px solid #000;
-    background: #000;
-    color: #fff;
-    border-radius: 999px;
-    padding: 14px;
-    font-weight: 1000;
-    cursor: pointer;
-  }
+  width: 100%;
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  border-radius: 22px;
+  padding: 16px 18px;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+
+
 
   /* LIGHTBOX: native zoom */
   .lightbox {
@@ -470,18 +503,19 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   .lightbox-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 48px;
-    height: 48px;
-    border-radius: 999px;
-    border: 0;
-    background: rgba(255, 255, 255, 0.92);
-    font-weight: 1000;
-    cursor: pointer;
-    z-index: 2;
-  }
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 22px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 2;
+}
+
 
   /* Вʼюпорт: scroll/pan, без перехоплення жестів */
   .lightbox-viewport {
@@ -496,14 +530,15 @@ function buildManagerUrl(pathname: string, payload: any): string {
 
   /* Ключ: робимо “полотно” ширше за екран, щоб zoom мав сенс */
   .lightbox-image {
-    width: min(2200px, 260vw);
-    max-width: none;
-    height: auto;
-    touch-action: pan-x pan-y;
-    display: block;
-    border-radius: 14px;
-    background: #fff;
-  }
+  width: min(2200px, 260vw);
+  max-width: none;
+  height: auto;
+  touch-action: pan-x pan-y;
+  display: block;
+  border-radius: 22px;
+  background: #fff;
+}
+
 
   @media (max-width: 420px) {
     .lightbox-image {
@@ -511,6 +546,15 @@ function buildManagerUrl(pathname: string, payload: any): string {
       border-radius: 10px;
     }
   }
+
+  @media (hover: hover) {
+  .manager-link:hover,
+  .pick-vision-link:hover,
+  .back:hover {
+    transform: scale(1.01);
+  }
+}
+
 
   @media (min-width: 560px) {
     .model {
@@ -538,28 +582,37 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   .manager-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 8px;
-  padding: 12px 16px;
-  border-radius: 999px;
+  padding: 14px 18px;
+  border-radius: 22px;
   background: #000;
   color: #fff;
+  font-size: 18px;
   font-weight: 900;
   text-align: center;
   text-decoration: none;
 }
 
+
+
+
 .manager-link:active {
-  transform: scale(0.96);
-  opacity: 0.85;
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
+
 .pick-vision-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 8px;
-  padding: 12px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.22);
+  padding: 14px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   background: transparent;
   color: #000;
   font-weight: 900;
@@ -567,10 +620,12 @@ function buildManagerUrl(pathname: string, payload: any): string {
   text-decoration: none;
 }
 
+
 .pick-vision-link:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
   opacity: 0.9;
 }
+
 
 
 </style>
