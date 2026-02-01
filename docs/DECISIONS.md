@@ -450,3 +450,24 @@ Home-екран відображає лише сценарії готових о
 - Home виглядає легше за Select.
 - Select читається краще за Home.
 - Візуальна різниця сприймається як усвідомлена, а не випадкова.
+
+## Deployment & Production Flow (GitHub + Vercel)
+
+**Status:** FIXED (immutable)
+
+### Decision
+- Єдина production-гілка: `main`
+- `main` автоматично деплоїться у Vercel Production
+- Прямі push у `main` заборонені
+- Єдиний шлях у production: Pull Request → merge
+
+### Rules
+- Будь-які зміни: feature-branch → PR → merge → production
+- Branch Protection для `main` увімкнено
+- Bypass для адміністраторів вимкнено
+- Vercel Preview використовується для перевірки PR
+
+### Acceptance
+- PR-флоу перевірено на практиці
+- Production завжди відповідає `main`
+- Неконтрольований деплой виключений
