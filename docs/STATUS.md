@@ -440,3 +440,23 @@ Fix: sanitize from before back navigation
 - UI більше не browser default
 - Жоден екран не рефакторився
 - Phase 6 (Visual Consistency) розблокована
+
+## Phase 7 — Gallery UX Redesign (READY)
+
+**Status:** CLOSED ✅  
+**Date:** 2026-02-01
+
+### Scope
+- Gallery як повноцінний UX-екран перед Model Page
+- Diopter flow (plus / minus)
+- Viewport-орієнтовані екрани без скролу
+- Узгодження з UI tokens Phase 6
+
+### Result
+- Gallery має чітку UX-структуру та ієрархію
+- Фільтри, grid, empty states працюють стабільно
+- Diopter selection screen:
+  - без скролу
+  - читабельний для ЦА 40–70
+  - 2 основні сценарії (плюс / мінус) + менеджер
+- Home / Select / Model Page не змінені
