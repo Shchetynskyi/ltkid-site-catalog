@@ -97,6 +97,8 @@
   }
 
   let diopterIndex = new Map<string, Set<string>>();
+  let singleColumn = true;
+
 
   $: {
     // rebuild index only when items change
@@ -253,12 +255,16 @@
 
 
   <div class="gallery-toolbar">
-    <div class="filters" aria-label="Фільтр ширини оправи">
-      {#each FRAME_WIDTH_RANGES as r (r.key)}
+  <div class="filter-header">
+    <div class="filter-label">Ширина оправи (мм)</div>
+
+    {#each FRAME_WIDTH_RANGES as r (r.key)}
+      {#if r.key === 'ALL'}
         <div
           role="button"
           tabindex="0"
-          class="filter-item"
+          class="filter-item filter-item--header"
+
           class:selected={activeRange === r.key}
           aria-pressed={activeRange === r.key}
           on:click={() => setRange(r.key)}
@@ -266,23 +272,54 @@
         >
           {r.label}
         </div>
-      {/each}
-    </div>
+      {/if}
+    {/each}
+  </div>
 
-    <div class="toolbar-row">
-      <div class="results-count">
-        Показано: <strong>{visibleItems.length}</strong>
-      </div>
 
+
+
+
+    <div class="filters" aria-label="Фільтр ширини оправи">
+  {#each FRAME_WIDTH_RANGES as r (r.key)}
+    {#if r.key !== 'ALL'}
       <div
         role="button"
         tabindex="0"
-        class="show-all"
-        on:click={showAll}
-        on:keydown={(e) => onKeyActivate(e, showAll)}
+        class="filter-item"
+        class:selected={activeRange === r.key}
+        aria-pressed={activeRange === r.key}
+        on:click={() => setRange(r.key)}
+        on:keydown={(e) => onKeyActivate(e, () => setRange(r.key))}
       >
-        Показати всі
+        {r.label}
       </div>
+    {/if}
+  {/each}
+</div>
+
+
+
+
+    <div class="toolbar-row">
+  <div class="results-count">
+    Показано: <strong>{visibleItems.length}</strong>
+  </div>
+
+  <button
+  type="button"
+  class="view-toggle"
+  on:click={() => (singleColumn = !singleColumn)}
+>
+  {singleColumn ? 'Показати 2 колонки' : 'Показати 1 колонку'}
+
+
+
+</button>
+
+
+
+      
     </div>
   </div>
 
@@ -308,7 +345,12 @@
       </div>
     {/if}
   {:else}
-    <div class="gallery-grid" aria-label="Галерея моделей">
+    <div
+  class="gallery-grid"
+  class:single={singleColumn}
+  aria-label="Галерея моделей"
+>
+
       {#each visibleItems as item (item.modelId)}
         <a
   class="product-card"
@@ -354,50 +396,90 @@
 
 <style>
   .gallery {
-    padding: 12px 12px 24px;
-  }
+  padding: 16px 16px 120px;
+}
+
 
   .notice {
-    margin: 8px 0 12px;
-    padding: 10px 12px;
-    border: 1px solid currentColor;
-    border-radius: 12px;
+    margin: 10px 0 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
     font-weight: 800;
+    background: rgba(0, 0, 0, 0.04);
   }
 
   .gallery-toolbar {
     position: sticky;
     top: 0;
     z-index: 5;
-    padding: 10px 0 12px;
+    padding: 12px 0 12px;
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
     display: grid;
-    gap: 10px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   .filters {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* сховати скролбар у фільтрі ширини */
+.filters {
+  scrollbar-width: none;          /* Firefox */
+}
+
+.filters::-webkit-scrollbar {
+  display: none;                  /* Chrome / Android */
+}
+
+  
+.filter-label {
+  margin-bottom: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #000;
+  white-space: nowrap;
+  min-width: 0;   /* КЛЮЧОВО */
+}
+
+
 
   .filter-item {
-    font-weight: 700;
-    border: 1px solid rgba(0, 0, 0, 0.55);
-    border-radius: 999px;
-    padding: 6px 12px;
-    cursor: pointer;
-    user-select: none;
-    background: #fff;
-    color: #000;
-    font-size: 14px;
-  }
+  font-weight: 900;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.04);
+  color: #000;
+  font-size: 18px;
+}
+
+/* компактні кнопки ТІЛЬКИ для фільтра ширини */
+.filters .filter-item {
+  padding: 8px 12px;
+  font-size: 15px;
+  white-space: nowrap;   /* ключове — без переносів */
+}
+
+
+
 
   .filter-item.selected {
-    background: #000;
-    color: #fff;
-    border-color: #000;
-  }
+  background: #000;
+  color: #fff;
+  border-color: #000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
 
   .toolbar-row {
     display: flex;
@@ -408,43 +490,50 @@
 
   .results-count {
     font-size: 14px;
-    opacity: 0.85;
+    color: #555;
+    font-weight: 700;
   }
 
-  .show-all {
-    font-weight: 800;
-    cursor: pointer;
-    user-select: none;
-    font-size: 14px;
-  }
+ 
 
-  /* Mobile-first товарний грід */
   .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    padding-top: 12px;
-  }
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 12px;
+}
+
+.gallery-grid.single {
+  grid-template-columns: 1fr;
+}
+
+
+
+
 
   .product-card {
-    display: grid;
-    gap: 10px;
-    text-decoration: none;
-    color: inherit;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 14px;
-    padding: 10px;
-    background: #fff;
+  display: grid;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
 
-    /* PERF: avoid laying out/rendering offscreen cards on mobile */
-    content-visibility: auto;
-    contain-intrinsic-size: 260px;
-  }
+  border: 2px solid rgba(0, 0, 0, 0.22); /* чіткіше */
+  border-radius: 18px;
+
+  padding: 12px;
+  background: #fff;
+
+  content-visibility: auto;
+  contain-intrinsic-size: 280px;
+}
+
+
+
 
   .media {
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.05);
     aspect-ratio: 4 / 3;
     display: grid;
     place-items: center;
@@ -465,34 +554,52 @@
   }
 
   .media-fallback-text {
-    font-weight: 800;
+    font-weight: 900;
     font-size: 18px;
-    opacity: 0.55;
+    color: #555;
     letter-spacing: 0.08em;
   }
 
   .meta {
-    display: grid;
-    gap: 4px;
-  }
+  display: grid;
+  gap: 12px;
+}
+
 
   .title {
-    font-weight: 700;
-    font-size: 14px;
-    line-height: 1.2;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1.15;
 
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: calc(14px * 1.2 * 2);
-  }
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
+  line-clamp: 2; /* standard property */
+
+  overflow: hidden;
+  min-height: calc(18px * 1.15 * 2);
+}
+
 
   .price {
-    font-size: 14px;
-    opacity: 0.85;
-    font-weight: 700;
-  }
+  margin-top: 10px;
+  display: inline-block;
+
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 900;
+
+  color: #000;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+
+
+
+
 
   .empty {
     padding: 18px 0;
@@ -501,25 +608,45 @@
   }
 
   .empty-title {
-    font-weight: 800;
+    font-weight: 900;
   }
 
   .empty-text {
-    opacity: 0.8;
+    color: #555;
+    font-weight: 700;
   }
 
   .empty-btn {
-    border: 1px solid #000;
+    border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 999px;
-    padding: 8px 14px;
-    font-weight: 800;
+    padding: 12px 16px;
+    font-weight: 900;
     cursor: pointer;
     width: fit-content;
+    background: transparent;
   }
+
+  .filter-header {
+  display: grid;
+  grid-template-columns: 1fr auto !important;
+
+  align-items: center;
+  column-gap: 12px;
+}
+
+
+.filter-item--header {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 
   @media (min-width: 640px) {
     .gallery {
-      padding: 16px 16px 28px;
+      padding: 16px 24px 28px;
       max-width: 1100px;
       margin: 0 auto;
     }
@@ -530,7 +657,18 @@
     }
 
     .product-card {
-      padding: 12px;
+      padding: 14px;
+      border-radius: 22px;
     }
+
+    .media {
+      border-radius: 18px;
+    }
+
+    .gallery-grid.single {
+  grid-template-columns: 1fr;
+}
+
+
   }
 </style>
