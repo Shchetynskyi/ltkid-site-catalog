@@ -1,26 +1,29 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { get } from 'svelte/store';
 
-  const gender = $page.params.gender;
+  function buildUrl(basePath: string) {
+    const p = get(page);
 
-  $: returnUrl = $page.url.searchParams.get('return')?.trim() || '';
-  const withReturn = (path: string) =>
-    returnUrl ? `${path}?return=${encodeURIComponent(returnUrl)}` : path;
+    const returnUrl = p.url.searchParams.get('return')?.trim() || '';
+    const returnModelId = p.url.searchParams.get('returnModelId')?.trim() || '';
+
+    const params = new URLSearchParams();
+    if (returnUrl) params.set('return', returnUrl);
+    if (returnModelId) params.set('returnModelId', returnModelId);
+
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  }
 
   function goPlus() {
-    const returnModelId = $page.url.searchParams.get('returnModelId');
-    const base = `/gallery/ready/${gender}/diopter/plus`;
-    window.location.href = returnModelId
-      ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
-      : withReturn(base);
+    const gender = get(page).params.gender as string;
+    window.location.href = buildUrl(`/gallery/ready/${gender}/diopter/plus`);
   }
 
   function goMinus() {
-    const returnModelId = $page.url.searchParams.get('returnModelId');
-    const base = `/gallery/ready/${gender}/diopter/minus`;
-    window.location.href = returnModelId
-      ? `${withReturn(base)}&returnModelId=${encodeURIComponent(returnModelId)}`
-      : withReturn(base);
+    const gender = get(page).params.gender as string;
+    window.location.href = buildUrl(`/gallery/ready/${gender}/diopter/minus`);
   }
 
   function goMessenger() {
@@ -29,24 +32,22 @@
 </script>
 
 <section class="diopter">
-  <div class="diopter__intro">
-    <h1 class="diopter__title">Оберіть тип окулярів</h1>
-    <p class="diopter__text">
-      Це допоможе показати відповідні варіанти готових окулярів
-    </p>
-  </div>
+  <header class="intro">
+    <h1>Оберіть тип окулярів</h1>
+    <p>Це допоможе показати відповідні варіанти готових окулярів</p>
+  </header>
 
-  <div class="diopter__actions">
-    <button class="btn plus" on:click={goPlus}>
-      ➕ Плюсові
+  <div class="grid">
+    <button class="tile tile--plus" on:click={goPlus} aria-label="Плюсові окуляри">
+      <span class="tile__text">+ Плюсові</span>
     </button>
 
-    <button class="btn minus" on:click={goMinus}>
-      ➖ Мінусові
+    <button class="tile tile--minus" on:click={goMinus} aria-label="Мінусові окуляри">
+      <span class="tile__text">− Мінусові</span>
     </button>
 
-    <button class="btn unsure" on:click={goMessenger}>
-      Уточнити з менеджером
+    <button class="tile tile--manager" on:click={goMessenger} aria-label="Уточнити з менеджером">
+      <span class="tile__text tile__text--manager">Уточнити з менеджером</span>
     </button>
   </div>
 </section>
@@ -54,53 +55,83 @@
 <style>
   @import '$lib/ui/tokens.css';
 
+  :root {
+    --gap: 12px;
+    --manager-h: 84px; /* було 64px */
+  }
+
   .diopter {
-    min-height: calc(100vh - var(--header-height, 0px));
+    height: calc(100svh - var(--header-height, 0px));
+    padding: var(--ui-page-pad-mobile);
     display: flex;
     flex-direction: column;
-    padding: var(--ui-page-pad-mobile);
+    overflow: hidden;
   }
 
-  .diopter__intro {
-    margin-bottom: 24px;
+  .intro h1 {
+    margin: 0 0 6px 0;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
   }
 
-  .diopter__title {
-    font-size: var(--ui-text-title);
-    font-weight: var(--ui-weight-600);
-    margin-bottom: 6px;
-  }
-
-  .diopter__text {
-    font-size: var(--ui-text-body);
+  .intro p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.3;
     color: var(--ui-gray-text);
   }
 
-  .diopter__actions {
-    flex: 1;
+  .grid {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    margin-top: 12px;
     display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: var(--ui-space-m);
+    gap: var(--gap);
+
+    grid-template-rows:
+      calc((100% - (2 * var(--gap)) - var(--manager-h)) / 2)
+      calc((100% - (2 * var(--gap)) - var(--manager-h)) / 2)
+      var(--manager-h);
   }
 
-  .btn {
-    border-radius: var(--ui-radius-l);
+  .tile {
+    width: 100%;
+    border-radius: 18px;
     border: 1px solid var(--ui-border-12);
-    background: var(--ui-surface-05);
-    font-size: var(--ui-text-cta);
-    font-weight: var(--ui-weight-600);
     cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
   }
 
-  .plus {
-    background: #e6f4ff;
+  .tile--plus {
+    background: #f0f0f0;
   }
 
-  .minus {
-    background: #ffecec;
+  .tile--minus {
+    background: #e7e7e7;
   }
 
-  .unsure {
-    background: #f2f2f2;
+  .tile--manager {
+    background: #dcdcdc;
+  }
+
+  .tile__text {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    line-height: 1.05;
+    color: #111;
+    text-align: center;
+  }
+
+  .tile__text--manager {
+    font-size: 24px; /* трохи більше */
+    font-weight: 850;
   }
 </style>
