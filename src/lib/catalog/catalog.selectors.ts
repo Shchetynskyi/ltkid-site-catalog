@@ -20,7 +20,8 @@ export type FrameWidthRange = {
 };
 
 export const FRAME_WIDTH_RANGES: readonly FrameWidthRange[] = [
-  { key: 'ALL', label: 'Усі', min: null, max: null },
+  { key: 'ALL', label: 'Показати всі', min: null, max: null },
+
   { key: 'LT_130', label: 'до 130', min: null, max: 130 },
   { key: 'R_131_140', label: '131–140', min: 131, max: 140 },
   { key: 'R_141_150', label: '141–150', min: 141, max: 150 },
