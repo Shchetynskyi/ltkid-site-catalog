@@ -463,3 +463,7 @@ Fix: sanitize from before back navigation
 
 MC-6 — IN PROGRESS
 MC-6 — CANON FIXED / IN PROGRESS
+
+MC-6 — DONE (endpoint live, payload verified)
+
+MC-6 — DONE (ManyChat Ref URL live, payload -> mc6_payload -> message)

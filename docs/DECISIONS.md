@@ -544,3 +544,23 @@ Done:
 — payload доходить у ManyChat без втрат
 — менеджер отримує перше повідомлення з даними моделі та діоптрій
 — ручне введення даних = 0
+
+## MC-6 — Implementation Canon (ManyChat)
+
+Decision:
+MC-6 реалізовано через ManyChat **Messenger Ref URL** (без webhook).
+Тригер: перехід за m.me з параметром `ref=mc6...`.
+
+ManyChat setup:
+- Flow: `MC-6 — Lead Intake`
+- Trigger: `Messenger Ref URL` with `Custom Ref parameter = mc6`
+- Save Payload to Custom User Field: `mc6_payload`
+- Message to manager contains: `{{mc6_payload}}`
+
+Data transfer (site → ManyChat):
+- Сайт формує URL:
+  `https://m.me/101402489688578?ref=mc6|...`
+- Весь рядок `ref` зберігається в `mc6_payload` і показується менеджеру в чаті.
+
+Notes:
+- HTTP endpoint `/api/mc-6/lead` лишається як dev-skeleton, але **не використовується** в поточній реалізації MC-6.
