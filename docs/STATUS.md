@@ -460,3 +460,10 @@ Fix: sanitize from before back navigation
   - читабельний для ЦА 40–70
   - 2 основні сценарії (плюс / мінус) + менеджер
 - Home / Select / Model Page не змінені
+
+MC-6 — IN PROGRESS
+MC-6 — CANON FIXED / IN PROGRESS
+
+MC-6 — DONE (endpoint live, payload verified)
+
+MC-6 — DONE (ManyChat Ref URL live, payload -> mc6_payload -> message)

@@ -21,12 +21,18 @@ function buildMessengerUrlWithDiopter(diopter: string): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
   const url = new URL(base);
 
-  // Canonical safe fallback (Phase 2 behavior)
-  url.searchParams.set('ref', 'site_catalog__from_site');
-  url.searchParams.set('DiopterContext', diopter);
+  const refParts = [
+    `mid=CATALOG`,
+    `t=CATALOG`,
+    `p=—`,
+    `d=${diopter}`
+  ];
 
+  url.searchParams.set('ref', refParts.join('|'));
   return url.toString();
 }
+
+
 
 // Extract ONLY tokens like +3.00 / -0.75 from possibly noisy strings
 const DIO_RE = /[+-]\d+(?:\.\d{2})/g;
