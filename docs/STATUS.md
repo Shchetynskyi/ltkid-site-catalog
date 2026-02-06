@@ -460,3 +460,6 @@ Fix: sanitize from before back navigation
   - читабельний для ЦА 40–70
   - 2 основні сценарії (плюс / мінус) + менеджер
 - Home / Select / Model Page не змінені
+
+MC-6 — IN PROGRESS
+MC-6 — CANON FIXED / IN PROGRESS
