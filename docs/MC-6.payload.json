@@ -1,0 +1,11 @@
+{
+  "model_id": "string",
+  "model_name": "string",
+  "price_uah": 0,
+  "diopter_left": 0,
+  "diopter_right": 0,
+  "cylinder": null,
+  "axis": null,
+  "source": "site",
+  "timestamp": "2026-02-06T00:00:00Z"
+}
