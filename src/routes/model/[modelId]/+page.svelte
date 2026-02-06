@@ -1,11 +1,11 @@
 <!-- src/routes/model/[modelId]/+page.svelte -->
 <script lang="ts">
   import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
-  import { onMount, onDestroy, tick } from 'svelte';
-  import { managerLeadPayload } from '$lib/lead/managerContext.store';
-  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
-  import { get } from 'svelte/store';
+import { goto } from '$app/navigation';
+import { onDestroy, tick } from 'svelte';
+import { managerLeadPayload } from '$lib/lead/managerContext.store';
+import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+
 
 
   
@@ -93,27 +93,23 @@ function buildManagerUrl(pathname: string, payload: any): string {
 }
 
 
- onMount(() => {
+ function buildMc6Ref(): string {
   const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
 
   const refParts = [
+    'mc6',
     `mid=${item.modelId}`,
     `t=${item.marketingTitle || item.modelId}`,
     `p=${getPriceLabel(item.SitePriceUAH)}`,
     item.mainImage ? `img=${item.mainImage}` : ''
-  ];
+  ].filter(Boolean);
 
   if (diopter) refParts.push(`d=${diopter}`);
 
-  managerLeadPayload.set({
-    ModelID: item.modelId,
-    MarketingTitle: item.marketingTitle || item.modelId,
-    SitePriceUAH: getPriceLabel(item.SitePriceUAH),
-    Image: item.mainImage || '',
-    ref: refParts.join('|'),
-    ...(diopter ? { DiopterContext: diopter } : {})
-  });
-});
+  return refParts.join('|');
+}
+
+
 
 
   onDestroy(() => {
@@ -144,9 +140,6 @@ function buildManagerUrl(pathname: string, payload: any): string {
   function onWindowKeydown(e: KeyboardEvent): void {
     if (e.key === 'Escape' && isLightboxOpen) closeLightbox();
   }
-
- $: managerUrl = buildManagerUrl($page.url.pathname, $managerLeadPayload);
-
 
 
 
@@ -191,15 +184,29 @@ function buildManagerUrl(pathname: string, payload: any): string {
 
 
   <!-- NEW: Messenger CTA -->
-  <a
-    class="manager-link"
-    href={managerUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Звʼязатися з менеджером у Messenger"
-  >
-    Звʼязатися з менеджером
-  </a>
+  <button
+  type="button"
+  class="manager-link"
+  on:click={() => {
+    const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
+    const ref = buildMc6Ref();
+
+    managerLeadPayload.set({
+      ModelID: item.modelId,
+      MarketingTitle: item.marketingTitle || item.modelId,
+      SitePriceUAH: getPriceLabel(item.SitePriceUAH),
+      Image: item.mainImage || '',
+      ref,
+      ...(diopter ? { DiopterContext: diopter } : {})
+    });
+
+    window.location.href = buildManagerUrl($page.url.pathname, { ref });
+  }}
+>
+  Звʼязатися з менеджером
+</button>
+
+
 
   <h1 class="title">{title}</h1>
 </div>
