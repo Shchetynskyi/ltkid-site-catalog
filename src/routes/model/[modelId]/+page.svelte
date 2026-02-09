@@ -1,10 +1,10 @@
 <!-- src/routes/model/[modelId]/+page.svelte -->
 <script lang="ts">
   import { page } from '$app/stores';
-import { goto } from '$app/navigation';
-import { onDestroy, tick } from 'svelte';
-import { managerLeadPayload } from '$lib/lead/managerContext.store';
-import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { goto } from '$app/navigation';
+  import { onDestroy, tick } from 'svelte';
+  import { managerLeadPayload } from '$lib/lead/managerContext.store';
+  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
 
 
 
@@ -41,16 +41,22 @@ import { MANAGER_MESSENGER_URL } from '$lib/config/links';
   return `https://${trimmed.replace(/^\/+/, '')}`;
 }
 
-function buildManagerUrl(pathname: string, payload: any): string {
+function buildManagerUrl(ref: string): string {
+  const base = normalizeBase(MANAGER_MESSENGER_URL);
+  const url = new URL(base);
+  url.searchParams.set('ref', ref);
+  return url.toString();
+}
+
+function buildMessengerPrefillUrl(ref: string): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
   const url = new URL(base);
 
-  if (payload && payload.ref) {
-    url.searchParams.set('ref', payload.ref);
-    return url.toString();
-  }
+  // відкриваємо чат на Page
+  // + додаємо prefill текстом повідомлення (юзер натисне Send)
+  url.searchParams.set('ref', 'mc6'); // тригер ManyChat може залишитись
+  url.searchParams.set('text', ref);  // payload як текст повідомлення
 
-  url.searchParams.set('ref', 'site_catalog__from_site');
   return url.toString();
 }
 
@@ -96,18 +102,21 @@ function buildManagerUrl(pathname: string, payload: any): string {
  function buildMc6Ref(): string {
   const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
 
-  const refParts = [
-    'mc6',
-    `mid=${item.modelId}`,
-    `t=${item.marketingTitle || item.modelId}`,
-    `p=${getPriceLabel(item.SitePriceUAH)}`,
-    item.mainImage ? `img=${item.mainImage}` : ''
+  const lines = [
+    '⬇️ Натисніть «Надіслати», щоб менеджер отримав ваше замовлення',
+    '',
+    'MC-6',
+    `ModelID: ${item.modelId}`,
+    `Title: ${(item.marketingTitle || item.modelId).trim()}`,
+    `Price: ${getPriceLabel(item.SitePriceUAH)}`,
+    item.mainImage ? `Image: ${item.mainImage}` : ''
   ].filter(Boolean);
 
-  if (diopter) refParts.push(`d=${diopter}`);
+  if (diopter) lines.push(`Diopter: ${diopter}`);
 
-  return refParts.join('|');
+  return lines.join('\n');
 }
+
 
 
 
@@ -200,7 +209,10 @@ function buildManagerUrl(pathname: string, payload: any): string {
       ...(diopter ? { DiopterContext: diopter } : {})
     });
 
-    window.location.href = buildManagerUrl($page.url.pathname, { ref });
+    window.location.href = buildMessengerPrefillUrl(ref);
+
+
+
   }}
 >
   Звʼязатися з менеджером
@@ -294,131 +306,146 @@ function buildManagerUrl(pathname: string, payload: any): string {
 
 <style>
   .model {
-  display: grid;
-  gap: 20px;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 16px;
-  padding-bottom: calc(16px + 96px);
-}
+    display: grid;
+    /* Більше повітря між великими зонами */
+    gap: 26px;
 
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: calc(16px + 96px);
 
+    /* Читабельність 40–70+ */
+    color: #111;
+    line-height: 1.4;
+  }
 
   .hero {
+    display: grid;
+    /* Компактніше всередині hero (фото+ціна як один блок) */
+    gap: 7px; /* було 10 */
+  }
+
+  .hero-media {
+    width: 100%;
+    padding: 0;
+    border-radius: 14px;
+    overflow: hidden;
+
+    /* Cards: чітка рамка, без “декор” тіней */
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+
+    position: relative;
+    cursor: zoom-in;
+    text-align: left;
+  }
+
+  .hero-image {
+    width: 100%;
+    display: block;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 14px;
+
+    /* Трохи підсилити фото (без зміни розміру) */
+    filter: contrast(1.06) saturate(1.03);
+  }
+
+  .zoom-hint {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px; /* +1px */
+    padding: 10px 14px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .hero-card {
+    padding: 14px;
+    border-radius: 14px;
+
+    /* Card = білий фон + рамка */
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+
+    /* Заборонено тіні замість рамок */
+    box-shadow: none;
+
     display: grid;
     gap: 10px;
   }
 
-  .hero-media {
-  width: 100%;
-  padding: 0;
-  border-radius: 22px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  position: relative;
-  cursor: zoom-in;
-  text-align: left;
-}
-
-
-  .hero-image {
-  width: 100%;
-  display: block;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 22px;
-}
-
-
-  .zoom-hint {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  font-weight: 800;
-  font-size: 13px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  text-align: center;
-}
-
-
-  .hero-card {
-  padding: 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(0, 0, 0, 0.04);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-  display: grid;
-  gap: 10px;
-}
-
-
-
-
-
-
   .price {
-  font-size: 32px;
-  line-height: 1.05;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
+    font-size: 34px; /* +2px */
+    line-height: 1.08;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #111;
+  }
 
   .diopter-badge {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  font-size: clamp(16px, 5.5vw, 20px);
+    display: inline-block;
+    margin-top: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
 
-  line-height: 1.25;
-  font-weight: 900;
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  background: rgba(0, 0, 0, 0.06);
-  text-align: center;
-}
+    font-size: clamp(16px, 5.5vw, 20px);
+    line-height: 1.28;
+    font-weight: 900;
 
-
-
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #f3f3f3;
+    color: #111;
+    text-align: center;
+  }
 
   .title {
-  margin: 0;
-  font-size: 20px;
-  line-height: 1.15;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
+    margin: 0;
+    font-size: 22px; /* +2px */
+    line-height: 1.22;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    color: #111;
+  }
 
-  
   .card {
-  padding: 16px;
-  border-radius: 22px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(0, 0, 0, 0.04);
-  display: grid;
-  gap: 16px;
-}
+    padding: 16px;
+    border-radius: 14px;
 
+    /* Card = білий фон + рамка */
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
 
+    display: grid;
 
+    /* Усередині блоків компактніше */
+    gap: 12px; /* було 16 */
+  }
 
   .section-title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  opacity: 0.7;
-}
+    margin: 0;
 
+    /* Текст не світло-сірий */
+    color: #111;
+
+    font-size: 16px; /* +2px */
+    line-height: 1.25;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+
+    /* прибираємо “вицвітання” контенту */
+    opacity: 1;
+  }
 
   .specs {
     display: grid;
-    gap: 10px;
+    gap: 8px; /* було 10 */
   }
 
   .spec {
@@ -427,7 +454,7 @@ function buildManagerUrl(pathname: string, payload: any): string {
     justify-content: space-between;
     gap: 12px;
     padding: 10px 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.10);
   }
 
   .spec:first-child {
@@ -440,16 +467,18 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   .spec-label {
-  font-size: 15px;
-  opacity: 0.8;
-}
-
+    font-size: 16px; /* +1px */
+    line-height: 1.35;
+    color: #111;
+    opacity: 1;
+  }
 
   .spec-value {
-  font-size: 15px;
-  text-align: right;
-}
-
+    font-size: 16px; /* +1px */
+    line-height: 1.35;
+    text-align: right;
+    color: #111;
+  }
 
   .services {
     display: grid;
@@ -464,35 +493,34 @@ function buildManagerUrl(pathname: string, payload: any): string {
     padding: 12px 14px;
     font-weight: 900;
     cursor: pointer;
+    color: #111;
   }
 
   /* STICKY CTA */
   .cta {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
 
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(0, 0, 0, 0.18);
+  }
 
+  /* Secondary: "Дивитись ще" — така ж ширина, значно світліша, не конкурує */
   .back {
-  width: 100%;
-  border: 1px solid #000;
-  background: #000;
-  color: #fff;
-  border-radius: 22px;
-  padding: 16px 18px;
-  font-size: 18px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-
-
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.28);
+    background: #f4f4f4;
+    color: #111;
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+  }
 
   /* LIGHTBOX: native zoom */
   .lightbox {
@@ -510,21 +538,19 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   .lightbox-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 48px;
-  height: 48px;
-  border-radius: 22px;
-  border: 0;
-  background: rgba(255, 255, 255, 0.92);
-  font-weight: 900;
-  cursor: pointer;
-  z-index: 2;
-}
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.92);
+    font-weight: 900;
+    cursor: pointer;
+    z-index: 2;
+  }
 
-
-  /* Вʼюпорт: scroll/pan, без перехоплення жестів */
   .lightbox-viewport {
     position: absolute;
     inset: 0;
@@ -535,17 +561,15 @@ function buildManagerUrl(pathname: string, payload: any): string {
     padding: 12px;
   }
 
-  /* Ключ: робимо “полотно” ширше за екран, щоб zoom мав сенс */
   .lightbox-image {
-  width: min(2200px, 260vw);
-  max-width: none;
-  height: auto;
-  touch-action: pan-x pan-y;
-  display: block;
-  border-radius: 22px;
-  background: #fff;
-}
-
+    width: min(2200px, 260vw);
+    max-width: none;
+    height: auto;
+    touch-action: pan-x pan-y;
+    display: block;
+    border-radius: 14px;
+    background: #fff;
+  }
 
   @media (max-width: 420px) {
     .lightbox-image {
@@ -555,26 +579,25 @@ function buildManagerUrl(pathname: string, payload: any): string {
   }
 
   @media (hover: hover) {
-  .manager-link:hover,
-  .pick-vision-link:hover,
-  .back:hover {
-    transform: scale(1.01);
+    .manager-link:hover,
+    .pick-vision-link:hover,
+    .back:hover {
+      transform: scale(1.01);
+    }
   }
-}
-
 
   @media (min-width: 560px) {
     .model {
       padding: 14px 16px 96px;
-      gap: 14px;
+      gap: 22px;
     }
 
     .price {
-      font-size: 32px;
+      font-size: 34px;
     }
 
     .title {
-      font-size: 20px;
+      font-size: 22px;
     }
 
     .cta {
@@ -588,51 +611,49 @@ function buildManagerUrl(pathname: string, payload: any): string {
     }
   }
 
+  /* Primary: "Звʼязатись з менеджером" — чорна/макс контрастна */
   .manager-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 8px;
-  padding: 14px 18px;
-  border-radius: 22px;
-  background: #000;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 900;
-  text-align: center;
-  text-decoration: none;
-}
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: #000;
+    border: 1px solid #000;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: center;
+    text-decoration: none;
+  }
 
+  .manager-link:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
 
+  .pick-vision-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
 
+    /* Secondary-вигляд */
+    background: #f4f4f4;
+    color: #111;
 
-.manager-link:active {
-  transform: scale(0.98);
-  opacity: 0.9;
-}
+    font-weight: 900;
+    text-align: center;
+    text-decoration: none;
+  }
 
-
-.pick-vision-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 8px;
-  padding: 14px 18px;
-  border-radius: 22px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: transparent;
-  color: #000;
-  font-weight: 900;
-  text-align: center;
-  text-decoration: none;
-}
-
-
-.pick-vision-link:active {
-  transform: scale(0.97);
-  opacity: 0.9;
-}
-
-
-
+  .pick-vision-link:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
 </style>
+

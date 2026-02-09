@@ -389,6 +389,7 @@
 
           <div class="meta">
             <div class="title">{item.marketingTitle || item.modelId}</div>
+            
             <div class="price">{getPriceLabel(item.SitePriceUAH)}</div>
           </div>
         </a>
