@@ -172,6 +172,10 @@ function buildMessengerPrefillUrl(ref: string): string {
     {/if}
 
     <div class="hero-card">
+
+      <h1 class="title">{title}</h1>
+
+
   <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
   {#if diopterUi}
   <div class="diopter-badge">
@@ -220,7 +224,7 @@ function buildMessengerPrefillUrl(ref: string): string {
 
 
 
-  <h1 class="title">{title}</h1>
+  
 </div>
 
   </header>
@@ -353,18 +357,25 @@ function buildMessengerPrefillUrl(ref: string): string {
   }
 
   .zoom-hint {
-    position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    background: rgba(0, 0, 0, 0.45);
-    color: #fff;
-    font-weight: 800;
-    font-size: 14px; /* +1px */
-    padding: 10px 14px;
-    border-radius: 12px;
-    text-align: center;
-  }
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+
+  background: transparent;
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  text-align: center;
+  pointer-events: none;
+
+  /* КЛЮЧ */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}
+
+
 
   .hero-card {
     padding: 14px;
@@ -382,12 +393,14 @@ function buildMessengerPrefillUrl(ref: string): string {
   }
 
   .price {
-    font-size: 34px; /* +2px */
-    line-height: 1.08;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    color: #111;
-  }
+  font-size: 34px;
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #111;
+
+  margin-top: 6px;   /* КЛЮЧ: відділяє від назви */
+}
 
   .diopter-badge {
     display: inline-block;
@@ -407,11 +420,12 @@ function buildMessengerPrefillUrl(ref: string): string {
 
   .title {
     margin: 0;
-    font-size: 22px; /* +2px */
+    font-size: 19px; /* +2px */
     line-height: 1.22;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: -0.01em;
     color: #111;
+    margin-bottom: 6px;
   }
 
   .card {
@@ -592,10 +606,7 @@ function buildMessengerPrefillUrl(ref: string): string {
       gap: 22px;
     }
 
-    .price {
-      font-size: 34px;
-    }
-
+   
     .title {
       font-size: 22px;
     }
