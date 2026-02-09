@@ -34,6 +34,7 @@ export async function fetchCatalog(
 ): Promise<CatalogItem[]> {
   const forceFresh = !!opts?.forceFresh;
 
+
   if (!forceFresh) {
     if (!catalogPromise) {
       catalogPromise = (async () => {
