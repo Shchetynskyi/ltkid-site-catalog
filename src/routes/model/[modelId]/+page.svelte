@@ -48,10 +48,16 @@ function buildManagerUrl(ref: string): string {
   return url.toString();
 }
 
-function buildMessengerPrefillUrl(): string {
+function buildMessengerPrefillUrl(ref: string): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
-  return base; // тільки ?ref=mc6_v2 з links.ts
+  const url = new URL(base);
+
+  url.searchParams.set('ref', 'mc6_v2'); // тригер ManyChat
+  url.searchParams.set('text', ref);     // префіл у полі вводу
+
+  return url.toString();
 }
+
 
 
 
@@ -95,23 +101,22 @@ function buildMessengerPrefillUrl(): string {
 
  function buildMc6Ref(): string {
   const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
+  const siteBase = 'https://ltkid-site-catalog.vercel.app';
 
   const lines = [
-    '⬇️ Натисніть «Надіслати», щоб менеджер отримав ваше замовлення',
+    'Натисніть «НАДІСЛАТИ», щоб менеджер побачив ваше замовлення.',
     '',
-    'MC-6',
-    `ModelID: ${item.modelId}`,
-    `Title: ${(item.marketingTitle || item.modelId).trim()}`,
-    `Price: ${getPriceLabel(item.SitePriceUAH)}`,
-    item.mainImage ? `Image: ${item.mainImage}` : ''
-  ].filter(Boolean);
-
-  if (diopter) lines.push(`Diopter: ${diopter}`);
+    `Модель: ${item.modelId}`,
+    `Назва: ${(item.marketingTitle || item.modelId).trim()}`,
+    `Діоптрія: ${diopter || '-'}`,
+    `Ціна: ${getPriceLabel(item.SitePriceUAH)}`,
+    `Посилання на модель: ${siteBase}/model/${encodeURIComponent(item.modelId)}`,
+    '',
+    'Натисніть «НАДІСЛАТИ», щоб менеджер побачив ваше замовлення.'
+  ];
 
   return lines.join('\n');
 }
-
-
 
 
 
@@ -207,9 +212,8 @@ function buildMessengerPrefillUrl(): string {
       ...(diopter ? { DiopterContext: diopter } : {})
     });
 
-    window.location.href = buildMessengerPrefillUrl();
-
-
+    
+window.location.href = buildMessengerPrefillUrl(ref);
 
 
   }}

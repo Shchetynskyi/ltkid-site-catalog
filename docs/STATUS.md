@@ -467,3 +467,12 @@ MC-6 — CANON FIXED / IN PROGRESS
 MC-6 — DONE (endpoint live, payload verified)
 
 MC-6 — DONE (ManyChat Ref URL live, payload -> mc6_payload -> message)
+
+## 2026-XX-XX — Model Page: Mobile UX Polish
+
+Status: CLOSED ✅
+
+- Mobile UX покращено (читабельність 40–70+)
+- Вирівняна ієрархія: назва / ціна / CTA
+- Візуальні правки без змін логіки, flow та даних
+- Production (Vercel) оновлено і перевірено
