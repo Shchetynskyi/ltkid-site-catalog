@@ -54,7 +54,7 @@ function buildMessengerPrefillUrl(ref: string): string {
 
   // відкриваємо чат на Page
   // + додаємо prefill текстом повідомлення (юзер натисне Send)
-  url.searchParams.set('ref', 'mc6'); // тригер ManyChat може залишитись
+  
   url.searchParams.set('text', ref);  // payload як текст повідомлення
 
   return url.toString();
