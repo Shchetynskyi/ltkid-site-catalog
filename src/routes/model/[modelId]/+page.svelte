@@ -48,17 +48,11 @@ function buildManagerUrl(ref: string): string {
   return url.toString();
 }
 
-function buildMessengerPrefillUrl(ref: string): string {
+function buildMessengerPrefillUrl(): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
-  const url = new URL(base);
-
-  // відкриваємо чат на Page
-  // + додаємо prefill текстом повідомлення (юзер натисне Send)
-  
-  url.searchParams.set('text', ref);  // payload як текст повідомлення
-
-  return url.toString();
+  return base; // тільки ?ref=mc6_v2 з links.ts
 }
+
 
 
 
@@ -213,7 +207,8 @@ function buildMessengerPrefillUrl(ref: string): string {
       ...(diopter ? { DiopterContext: diopter } : {})
     });
 
-    window.location.href = buildMessengerPrefillUrl(ref);
+    window.location.href = buildMessengerPrefillUrl();
+
 
 
 
