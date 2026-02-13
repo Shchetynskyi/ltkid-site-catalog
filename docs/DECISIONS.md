@@ -564,3 +564,37 @@ Data transfer (site → ManyChat):
 
 Notes:
 - HTTP endpoint `/api/mc-6/lead` лишається як dev-skeleton, але **не використовується** в поточній реалізації MC-6.
+
+MC-6 v2 — Messenger Prefill Strategy
+
+Decision:
+- Використовується m.me + ref=mc6_v2
+- Payload передається через ?text=
+- ManyChat тригериться після першого user message
+- Автоматична передача без user action НЕ використовується
+
+Reason:
+Meta platform limitation.
+
+Result:
+- Контекст передається гарантовано
+- 24h messaging window відкривається легально
+
+## MC-6 v2 — Messenger Prefill Strategy
+
+**Status:** FIXED
+
+### Decision
+- Використовується `m.me` з параметром `ref=mc6_v2`
+- Payload передається через `?text=`
+- Дані відправляються менеджеру тільки після того,
+  як клієнт натискає «НАДІСЛАТИ»
+
+### Platform Limitation
+Автоматична передача без дії користувача неможлива
+через обмеження Meta.
+
+### Result
+- Контекст передається гарантовано
+- Відкривається 24h messaging window
+- ManyChat може запускати automation після першого повідомлення
