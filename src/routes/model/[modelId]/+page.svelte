@@ -104,15 +104,13 @@ function buildMessengerPrefillUrl(ref: string): string {
   const siteBase = 'https://ltkid-site-catalog.vercel.app';
 
   const lines = [
-    'Натисніть «НАДІСЛАТИ», щоб менеджер побачив ваше замовлення.',
-    '',
     `Модель: ${item.modelId}`,
     `Назва: ${(item.marketingTitle || item.modelId).trim()}`,
-    `Діоптрія: ${diopter || '-'}`,
+    `Лінзи (+/-): ${diopter || 'НЕ ВИБРАНО'}`,
     `Ціна: ${getPriceLabel(item.SitePriceUAH)}`,
     `Посилання на модель: ${siteBase}/model/${encodeURIComponent(item.modelId)}`,
     '',
-    'Натисніть «НАДІСЛАТИ», щоб менеджер побачив ваше замовлення.'
+    'Натисніть «НАДІСЛАТИ», щоб менеджер отримав ваше звернення.'
   ];
 
   return lines.join('\n');
