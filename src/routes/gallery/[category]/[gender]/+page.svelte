@@ -74,15 +74,18 @@
   }
 
   function buildMessengerUrlWithDiopter(diopter: string): string {
-    const base = normalizeBase(MANAGER_MESSENGER_URL);
-    const url = new URL(base);
+  const base = normalizeBase(MANAGER_MESSENGER_URL);
+  const url = new URL(base);
 
-    // Canonical safe fallback (Phase 2 behavior)
-    url.searchParams.set('ref', 'site_catalog__from_site');
-    url.searchParams.set('DiopterContext', diopter);
+  // Canonical safe fallback (Phase 2 behavior)
+  url.searchParams.set('ref', 'site_catalog__from_site');
+  url.searchParams.set('DiopterContext', diopter);
 
-    return url.toString();
-  }
+  return url.toString();
+}
+
+
+
 
   // PERF: pre-index diopters per item once (avoid regex per item per render)
   const DIO_RE = /[+-]\d+(?:\.\d{2})/g;
@@ -386,6 +389,7 @@
 
           <div class="meta">
             <div class="title">{item.marketingTitle || item.modelId}</div>
+            
             <div class="price">{getPriceLabel(item.SitePriceUAH)}</div>
           </div>
         </a>

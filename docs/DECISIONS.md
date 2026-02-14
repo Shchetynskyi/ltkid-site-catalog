@@ -450,3 +450,151 @@ Home-екран відображає лише сценарії готових о
 - Home виглядає легше за Select.
 - Select читається краще за Home.
 - Візуальна різниця сприймається як усвідомлена, а не випадкова.
+
+## Deployment & Production Flow (GitHub + Vercel)
+
+**Status:** FIXED (immutable)
+
+### Decision
+- Єдина production-гілка: `main`
+- `main` автоматично деплоїться у Vercel Production
+- Прямі push у `main` заборонені
+- Єдиний шлях у production: Pull Request → merge
+
+### Rules
+- Будь-які зміни: feature-branch → PR → merge → production
+- Branch Protection для `main` увімкнено
+- Bypass для адміністраторів вимкнено
+- Vercel Preview використовується для перевірки PR
+
+### Acceptance
+- PR-флоу перевірено на практиці
+- Production завжди відповідає `main`
+- Неконтрольований деплой виключений
+
+## Messenger Integration — Context Transfer Limitation (Meta)
+
+**Status:** FIXED (immutable)
+
+### Decision
+Інтеграція SITE-CATALOG з Messenger (ManyChat) **НЕ гарантує**
+автоматичну передачу контексту вибору користувача
+(модель, діоптрія, сторінка)
+менеджеру **без активної дії користувача в чаті**.
+
+Це є **платформним обмеженням Meta (privacy / anti-spam)**,
+а не проблемою реалізації або ManyChat.
+
+### Scope
+- Messenger використовується як **канал живого спілкування**.
+- Сайт використовується як **інструмент самостійного вибору**.
+- Автоматичне повідомлення менеджеру з контекстом
+  без дії користувача **не очікується і не вимагається**.
+
+### Rejected
+- Спроби “зберігати контекст” у Messenger заднім числом
+- Ускладнення ManyChat-флоу для обходу обмежень
+- Використання ManyChat як системи даних або логіки
+
+### Notes
+Експериментальні зміни коду, пов’язані з MC-інтеграцією,
+не прийняті і **відкочені**.
+
+## MC-6 — Canon Decision
+
+Context:
+Сайт передає вхідні дані клієнта (модель, діоптрії, ціна) у Messenger.
+Потрібно автоматизувати перший контакт менеджера без ручних дій.
+
+Decision:
+MC-6 зафіксовано як обовʼязковий етап.
+ManyChat використовується для:
+— прийому payload із сайту
+— формування першого повідомлення менеджеру клієнту
+— логування ліда
+
+Consequences:
+— Менеджер не вводить дані вручну
+— Є єдиний сценарій першого контакту
+— ManyChat залишається ядром комунікації
+
+Scope:
+— тільки передача payload із сайту → ManyChat
+— тільки перше повідомлення менеджеру
+— без логіки продажу, без бот-діалогів
+— без змін UI сайту
+
+Payload (canonical):
+— model_id
+— model_name
+— price_uah
+— diopter_left
+— diopter_right
+— cylinder (optional)
+— axis (optional)
+— source = site
+— timestamp
+
+Trigger:
+— submit форми на сайті
+— успішна валідація payload
+— миттєва передача в ManyChat
+
+Done:
+— payload доходить у ManyChat без втрат
+— менеджер отримує перше повідомлення з даними моделі та діоптрій
+— ручне введення даних = 0
+
+## MC-6 — Implementation Canon (ManyChat)
+
+Decision:
+MC-6 реалізовано через ManyChat **Messenger Ref URL** (без webhook).
+Тригер: перехід за m.me з параметром `ref=mc6...`.
+
+ManyChat setup:
+- Flow: `MC-6 — Lead Intake`
+- Trigger: `Messenger Ref URL` with `Custom Ref parameter = mc6`
+- Save Payload to Custom User Field: `mc6_payload`
+- Message to manager contains: `{{mc6_payload}}`
+
+Data transfer (site → ManyChat):
+- Сайт формує URL:
+  `https://m.me/101402489688578?ref=mc6|...`
+- Весь рядок `ref` зберігається в `mc6_payload` і показується менеджеру в чаті.
+
+Notes:
+- HTTP endpoint `/api/mc-6/lead` лишається як dev-skeleton, але **не використовується** в поточній реалізації MC-6.
+
+MC-6 v2 — Messenger Prefill Strategy
+
+Decision:
+- Використовується m.me + ref=mc6_v2
+- Payload передається через ?text=
+- ManyChat тригериться після першого user message
+- Автоматична передача без user action НЕ використовується
+
+Reason:
+Meta platform limitation.
+
+Result:
+- Контекст передається гарантовано
+- 24h messaging window відкривається легально
+
+## MC-6 v2 — Messenger Prefill Strategy
+
+**Status:** FIXED
+
+### Decision
+- Використовується `m.me` з параметром `ref=mc6_v2`
+- Payload передається через `?text=`
+- Дані відправляються менеджеру тільки після того,
+  як клієнт натискає «НАДІСЛАТИ»
+
+### Platform Limitation
+Автоматична передача без дії користувача неможлива
+через обмеження Meta.
+
+### Result
+- Контекст передається гарантовано
+- Відкривається 24h messaging window
+- ManyChat може запускати automation після першого повідомлення

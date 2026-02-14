@@ -14,17 +14,18 @@ body {
 /* ===== Design Tokens (minimal) ===== */
 :root {
   /* colors */
-  --color-bg: #ffffff;
+  --color-bg: #f1f1f1; /* помітно світло-сірий фон сторінки */
+  --color-surface: #ffffff; /* білий для cards/поверхонь */
   --color-text: #111111;
   --color-overlay: rgba(0, 0, 0, 0.06);
 
   /* typography */
-  --font-base: Inter, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Arial, sans-serif;
+  --font-base: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Arial, sans-serif;
 
-  --font-size-base: 16px;
+  --font-size-base: 17px; /* +1px для читабельності 40–70+ */
   --font-size-heading: 1.25em;
-  --line-height-base: 1.5;
+  --line-height-base: 1.55; /* трохи більше міжряддя */
 }
 
 /* ===== Base Layout ===== */

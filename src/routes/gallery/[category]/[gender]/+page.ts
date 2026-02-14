@@ -21,12 +21,24 @@ function buildMessengerUrlWithDiopter(diopter: string): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
   const url = new URL(base);
 
-  // Canonical safe fallback (Phase 2 behavior)
-  url.searchParams.set('ref', 'site_catalog__from_site');
-  url.searchParams.set('DiopterContext', diopter);
+  // залишаємо твій ref (менеджеру/аналітиці)
+  const refParts = [`mid=CATALOG`, `t=CATALOG`, `p=—`, `d=${diopter}`];
+  url.searchParams.set('ref', refParts.join('|'));
+
+  // додаємо людський prefill (клієнт бачить)
+  const text =
+    `З моїми лінзами не знайшлося готових окулярів у каталозі.\n` +
+    `Потрібна допомога менеджера.\n\n` +
+    `Мої лінзи (+/-): ${diopter}\n\n` +
+    `Натисніть «НАДІСЛАТИ», щоб менеджер отримав ваше звернення.`;
+
+  url.searchParams.set('text', text);
 
   return url.toString();
 }
+
+
+
 
 // Extract ONLY tokens like +3.00 / -0.75 from possibly noisy strings
 const DIO_RE = /[+-]\d+(?:\.\d{2})/g;

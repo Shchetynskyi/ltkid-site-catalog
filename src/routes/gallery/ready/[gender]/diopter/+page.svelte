@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { get } from 'svelte/store';
+  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
 
   function buildUrl(basePath: string) {
     const p = get(page);
@@ -16,6 +17,26 @@
     return qs ? `${basePath}?${qs}` : basePath;
   }
 
+  function normalizeBase(raw: string): string {
+    const trimmed = (raw ?? '').trim();
+    if (!trimmed) return 'https://m.me/101402489688578';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    return `https://${trimmed.replace(/^\/+/, '')}`;
+  }
+
+  function buildMessengerPrefillUrl(text: string): string {
+    const base = normalizeBase(MANAGER_MESSENGER_URL);
+    const url = new URL(base);
+
+    // ManyChat trigger
+    url.searchParams.set('ref', 'mc6_v2');
+
+    // Prefilled message (user sees it before sending)
+    url.searchParams.set('text', text);
+
+    return url.toString();
+  }
+
   function goPlus() {
     const gender = get(page).params.gender as string;
     window.location.href = buildUrl(`/gallery/ready/${gender}/diopter/plus`);
@@ -27,7 +48,17 @@
   }
 
   function goMessenger() {
-    window.location.href = import.meta.env.VITE_MESSENGER_URL;
+    const p = get(page);
+    const gender = p.params.gender as string;
+
+    // IMPORTANT: avoid the word "діоптрії" for clients
+    const text =
+  `Потрібна допомога з вибором окулярів.\n` +
+  `Не впевнений(а), які лінзи мені потрібні — «плюс» чи «мінус».\n\n` +
+  `Натисніть «НАДІСЛАТИ», щоб менеджер отримав повідомлення.`;
+
+
+    window.location.href = buildMessengerPrefillUrl(text);
   }
 </script>
 
