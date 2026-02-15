@@ -113,19 +113,23 @@ if (isReady && diopter && returnModelId) {
 
   console.time('[P3] map items');
   const mapped = filtered.map((i) => ({
-    modelId: i.modelId,
-    marketingTitle: i.marketingTitle,
+  modelId: i.modelId,
+  marketingTitle: i.marketingTitle,
 
-    // IMPORTANT: pass same field as model page uses
-    mainImage: (i as any).mainImage ?? null,
+  // IMPORTANT: pass same field as model page uses
+  mainImage: (i as any).mainImage ?? null,
 
-    // keep existing field (might be used elsewhere)
-    previewImage: (i as any).previewImage ?? null,
+  // keep existing field (might be used elsewhere)
+  previewImage: (i as any).previewImage ?? null,
 
-    SitePriceUAH: (i as any).SitePriceUAH ?? '',
-    frameWidth: i.frameWidth ?? null,
-    DiopterValues: (i as any).DiopterValues ?? null
-  }));
+  SitePriceUAH: (i as any).SitePriceUAH ?? '',
+  frameWidth: i.frameWidth ?? null,
+  DiopterValues: (i as any).DiopterValues ?? null,
+
+  // 🔑 додаємо тип лінз
+  TypeLens: (i as any).TypeLens ?? null
+}));
+
   console.timeEnd('[P3] map items');
 
   console.timeEnd('[P3] load total');

@@ -95,6 +95,10 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       // 🔑 SSOT: READY визначається тут
       DiopterValues: (row['DiopterValues'] ?? '').trim(),
 
+             // ✅ тип лінз (технічний код)
+      TypeLens: (row['TypeLens'] ?? '').trim(),
+
+
       // legacy (більше не використовується для READY)
       hasManufacturerDiopters: hasManufacturerDiopters(row)
     });
