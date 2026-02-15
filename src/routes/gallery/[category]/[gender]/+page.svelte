@@ -13,19 +13,28 @@
   } from '$lib/catalog/catalog.selectors';
   import { galleryScrollKey } from '$lib/utils/scroll';
   import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { getPublicModelId } from "$lib/catalog/publicModelId";
+  import { getLensTypeLabel } from "$lib/catalog/lensTypeLabel";
+  import { getLensTypeVendorTag } from "$lib/catalog/lensTypeVendorTag";
+
+
+
 
   type GalleryItem = FrameWidthItem & {
-    modelId: string;
-    marketingTitle: string;
+  modelId: string;
+  marketingTitle: string;
 
-    // IMPORTANT: use same image field as model page
-    mainImage?: string;
+  // IMPORTANT: use same image field as model page
+  mainImage?: string;
 
-    SitePriceUAH?: string | number | null;
+  SitePriceUAH?: string | number | null;
 
-    // Phase 3 (ready-only)
-    DiopterValues?: string | null;
-  };
+  // Phase 3 (ready-only)
+  DiopterValues?: string | null;
+
+  TypeLens?: string | null;
+};
+
 
   export let data: { items: GalleryItem[] };
 
@@ -354,46 +363,60 @@
   aria-label="Галерея моделей"
 >
 
-      {#each visibleItems as item (item.modelId)}
-        <a
-  class="product-card"
-  href={
-    returnUrl && item.modelId === returnUrl.split('/model/')[1]
-      ? `${returnUrl}?diopter=${encodeURIComponent(diopter!)}`
-      : `/model/${encodeURIComponent(item.modelId)}?${new URLSearchParams({
-          ...(diopter ? { diopter } : {}),
-          from: $page.url.pathname + $page.url.search
-        }).toString()}`
-  }
->
+     {#each visibleItems as item (item.modelId)}
+  <a
+    class="product-card"
+    href={
+      returnUrl && item.modelId === returnUrl.split('/model/')[1]
+        ? `${returnUrl}?diopter=${encodeURIComponent(diopter!)}`
+        : `/model/${encodeURIComponent(item.modelId)}?${new URLSearchParams({
+            ...(diopter ? { diopter } : {}),
+            from: $page.url.pathname + $page.url.search
+          }).toString()}`
+    }
+  >
+    <div class="media">
+      {#if item.mainImage}
+        <img
+          class="media-img"
+          src={item.mainImage}
+          alt={item.marketingTitle || item.modelId}
+          loading="lazy"
+          decoding="async"
+        />
+      {:else}
+        <div class="media-fallback" aria-hidden="true">
+          <span class="media-fallback-text">
+            {initialsFromTitle(item.marketingTitle, item.modelId)}
+          </span>
+        </div>
+      {/if}
+    </div>
 
+    <div class="meta">
+      <div class="price price--accent">
+        {getPriceLabel(item.SitePriceUAH)}
+      </div>
 
-        >
-          <div class="media">
-            {#if item.mainImage}
-              <img
-                class="media-img"
-                src={item.mainImage}
-                alt={item.marketingTitle || item.modelId}
-                loading="lazy"
-                decoding="async"
-              />
-            {:else}
-              <div class="media-fallback" aria-hidden="true">
-                <span class="media-fallback-text">
-                  {initialsFromTitle(item.marketingTitle, item.modelId)}
-                </span>
-              </div>
-            {/if}
-          </div>
+      {#if item.marketingTitle}
+        <div class="mkt">{item.marketingTitle}</div>
+      {/if}
 
-          <div class="meta">
-            <div class="title">{item.marketingTitle || item.modelId}</div>
-            
-            <div class="price">{getPriceLabel(item.SitePriceUAH)}</div>
-          </div>
-        </a>
-      {/each}
+      {#if getLensTypeLabel(item.TypeLens)}
+        <div class="lens">{getLensTypeLabel(item.TypeLens)}</div>
+      {/if}
+
+      <div class:id-primary={!item.marketingTitle} class="id">
+
+        {getPublicModelId(item.modelId)}
+        {#if getLensTypeVendorTag(item.TypeLens)}
+          {" "}{getLensTypeVendorTag(item.TypeLens)}
+        {/if}
+      </div>
+    </div>
+  </a>
+{/each}
+
     </div>
   {/if}
 </section>
@@ -570,27 +593,21 @@
 }
 
 
-  .title {
-  font-weight: 900;
+  .id {
+  font-weight: 400;
   font-size: 18px;
-  line-height: 1.15;
-
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-
-  line-clamp: 2; /* standard property */
-
-  overflow: hidden;
-  min-height: calc(18px * 1.15 * 2);
+  line-height: 1.2;
+  color: #555;
+  margin-top: 6px;
 }
+
 
 
   .price {
   margin-top: 10px;
   display: inline-block;
 
-  font-size: 22px;
+  font-size: 26px;
   line-height: 1.1;
   font-weight: 900;
 
@@ -600,7 +617,28 @@
   border-radius: 12px;
 }
 
+.mkt {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #000;
 
+  letter-spacing: 0.3px;
+}
+
+
+.lens {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin-top: 4px;
+}
+
+.id.id-primary {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+}
 
 
 
