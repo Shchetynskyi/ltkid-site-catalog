@@ -5,8 +5,9 @@
   import { onDestroy, tick } from 'svelte';
   import { managerLeadPayload } from '$lib/lead/managerContext.store';
   import { MANAGER_MESSENGER_URL } from '$lib/config/links';
-
-
+  import { getLensTypeLabel } from "$lib/catalog/lensTypeLabel";
+  import { getLensTypeVendorTag } from "$lib/catalog/lensTypeVendorTag";
+  import { getPublicModelId } from "$lib/catalog/publicModelId";
 
   
 
@@ -23,6 +24,9 @@
 
     frameWidth?: number | null;
     frameHeight?: number | null;
+
+    TypeLens?: string | null;
+
 
     tryOn?: boolean;
     aiPreview?: boolean;
@@ -170,10 +174,24 @@ function buildMessengerPrefillUrl(ref: string): string {
 
     <div class="hero-card">
 
-      <h1 class="title">{title}</h1>
+      <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
+
+{#if item.marketingTitle}
+  <h1 class="title">{item.marketingTitle}</h1>
+{/if}
+
+{#if getLensTypeLabel(item.TypeLens)}
+  <div class="lens">{getLensTypeLabel(item.TypeLens)}</div>
+{/if}
+
+<div class="id" class:id-primary={!item.marketingTitle}>
+  {getPublicModelId(item.modelId)}
+  {#if getLensTypeVendorTag(item.TypeLens)}
+    {" "}{getLensTypeVendorTag(item.TypeLens)}
+  {/if}
+</div>
 
 
-  <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
   {#if diopterUi}
   <div class="diopter-badge">
     Підібрано для діоптрії: {diopterUi}
@@ -425,6 +443,27 @@ window.location.href = buildMessengerPrefillUrl(ref);
     margin-bottom: 6px;
   }
 
+  .lens {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin-top: 4px;
+}
+
+.id {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #555;
+  margin-top: 6px;
+}
+
+.id.id-primary {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+}
+
   .card {
     padding: 16px;
     border-radius: 14px;
@@ -607,6 +646,9 @@ window.location.href = buildMessengerPrefillUrl(ref);
     .title {
       font-size: 22px;
     }
+
+    
+
 
     .cta {
       left: 50%;
