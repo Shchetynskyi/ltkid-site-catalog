@@ -17,125 +17,140 @@
     gender;
 </script>
 
-<section class="ready-select">
-  <!-- PRIMARY -->
-  <a class="card card--primary" href={`/gallery/ready/${gender}/diopter`}>
-    <div
-      class="card__image"
+<section class="home">
+  <div class="home__grid home__grid--ready">
+    <a
+      href={`/gallery/ready/${gender}/diopter`}
+      class="home__card"
       style={`background-image: url('/ready-select/${genderKey}/pick.jpg?v=1');`}
-    ></div>
-    <div class="card__content">
-      <div class="card__title">Підібрати під мій зір</div>
-    </div>
-  </a>
+      aria-label="Підібрати під мій зір"
+    >
+      <div class="home__card-content">
+        <div class="home__card-title-main">Підібрати</div>
+        <div class="home__card-title-sub">під мій зір</div>
+      </div>
+    </a>
 
-  <!-- SECONDARY -->
-  <a class="card card--secondary" href={`/gallery/ready/${gender}`}>
-    <div
-      class="card__image"
+    <a
+      href={`/gallery/ready/${gender}`}
+      class="home__card"
       style={`background-image: url('/ready-select/${genderKey}/show-all.jpg?v=1');`}
-    ></div>
-    <div class="card__content">
-      <div class="card__title">Показати всі</div>
-    </div>
-  </a>
+      aria-label="Показати всі"
+    >
+      <div class="home__card-content">
+        <div class="home__card-title-main">Показати</div>
+        <div class="home__card-title-sub">всі</div>
+      </div>
+    </a>
+  </div>
 </section>
 
 <style>
-  /* Мобільний first */
-  .ready-select {
+  .home {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  /* 1:1 як Home */
+  .home__grid--ready {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px;
+    gap: 16px;
+    min-height: calc(100vh - 120px);
   }
 
-  .card {
+  .home__card {
     position: relative;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 150px;
+
     border-radius: 18px;
-    overflow: hidden;
     text-decoration: none;
+    color: #fff;
 
-    /* Стабільна геометрія, ближче до Home */
-    min-height: 170px;
-    height: 36vh;
-    max-height: 300px;
-
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.10);
     border: 1px solid rgba(0, 0, 0, 0.12);
-  }
 
-  .card__image {
-    position: absolute;
-    inset: 0;
     background-size: cover;
     background-position: center 20%;
     background-repeat: no-repeat;
+    overflow: hidden;
   }
 
-  /* Плашка — як на Home */
-  .card__content {
+  .home__card::before {
+    content: '';
     position: absolute;
-    left: 16px;
-    right: 16px;
-    bottom: 14px;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.22) 0%,
+      rgba(0, 0, 0, 0.30) 100%
+    );
+    pointer-events: none;
+  }
+
+  .home__card-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12%;
     z-index: 1;
 
-    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    padding: 0 14px;
     text-align: center;
-
-    background: rgba(0, 0, 0, 0.45);
-    border-radius: 14px;
-
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  .card__title {
-    color: #fff;
-    font-weight: 700;
-    font-size: clamp(26px, 5.6vw, 40px);
-    line-height: 1.12;
-    letter-spacing: -0.01em;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  .home__card-title-main {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.home__card-title-sub {
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.1;
+  opacity: 0.85;
+}
+
+
+  .home__card:active {
+    border-color: rgba(255, 255, 255, 0.35);
   }
 
-  .card--primary {
-    outline: 2px solid rgba(255, 135, 35, 0.22);
-  }
-
-  .card--secondary {
-    outline: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  @media (hover: hover) {
-    .card {
-      transition: transform 0.12s ease, box-shadow 0.15s ease;
+  @media (min-width: 640px) {
+    .home {
+      max-width: 1100px;
+      padding: 32px 16px;
     }
-    .card:hover {
-      transform: scale(1.01);
-    }
-  }
 
-  .card:active {
-    transform: scale(0.99);
-  }
-
-  /* Desktop */
-  @media (min-width: 900px) {
-    .ready-select {
-      grid-template-columns: 1fr 1fr;
-      align-items: start;
+    .home__grid--ready {
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
-      padding: 16px;
     }
 
-    .card {
-      height: 320px;
-      max-height: none;
+    .home__card {
+      min-height: 190px;
       border-radius: 22px;
     }
+
+    .home__card-title-main {
+  font-size: 46px;
+}
+
+.home__card-title-sub {
+  font-size: 40px;
+}
+
   }
 </style>

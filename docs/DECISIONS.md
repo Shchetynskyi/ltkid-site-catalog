@@ -429,27 +429,24 @@ Home-екран відображає лише сценарії готових о
 - У Telegram in-app: поведінка back не “фікситься” кодом, і це приймається як обмеження платформи.
 - Рекомендація для комунікацій: “Для коректної навігації відкрийте в браузері”.
 
-## Phase 6 — Home vs Select: Overlay Panel Decision
+## Phase 6 — Entry Card Unification
 
-**Decision:** Home та Select мають **різну стилістику**, відповідно до ролі екранів.
+Status: FIXED
 
-- **Home** — БЕЗ плашки під текст.
-- **Select** — З напівпрозорою плашкою для читабельності.
+Decision:
+Home та Ready Select використовують один і той самий
+канонічний патерн картки (home__card).
 
-**Rationale:**
-- Home = емоційний entry-екран.
-- Select = утилітарний екран вибору.
-- Уніфікація плашки знизила б ефективність кожного з екранів.
+Overlay-плашка на Select скасована.
 
-**Constraints:**
-- Плашка НЕ додається на Home.
-- Плашка ЗАЛИШАЄТЬСЯ на Select.
-- Тексти, CTA, логіка, UX-FLOW — без змін.
+Rules:
+- background-image застосовується на <a>
+- overlay тільки через ::before
+- окремих .card / .card__content / blur-плашок не існує
 
-**Acceptance:**
-- Home виглядає легше за Select.
-- Select читається краще за Home.
-- Візуальна різниця сприймається як усвідомлена, а не випадкова.
+Acceptance:
+Home і Ready Select виглядають як один UI-компонент.
+
 
 ## Deployment & Production Flow (GitHub + Vercel)
 
