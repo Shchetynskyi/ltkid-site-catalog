@@ -41,7 +41,7 @@ export const load: PageLoad = async ({ params, url, parent }) => {
 
     const target = from
       ? buildRedirectTarget(from, 'model_not_found')
-      : buildRedirectTarget('/gallery/frames/unisex', 'model_not_found');
+      : buildRedirectTarget('/gallery/ready/unisex', 'model_not_found');
 
     throw redirect(302, target);
   }
