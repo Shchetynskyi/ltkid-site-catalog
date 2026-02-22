@@ -85,7 +85,7 @@ function buildMessengerPrefillUrl(ref: string): string {
     try {
       const decoded = decodeURIComponent(fromRaw);
       const u = new URL(decoded, 'https://local.base'); // підтримка relative path
-      u.searchParams.delete('diopter');                 // ключовий FIX
+                     // ключовий FIX
 
       const qs = u.searchParams.toString();
       const cleaned = `${u.pathname}${qs ? `?${qs}` : ''}${u.hash || ''}`;

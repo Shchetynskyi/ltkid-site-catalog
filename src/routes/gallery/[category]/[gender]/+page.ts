@@ -80,10 +80,12 @@ const returnModelId = url.searchParams.get('returnModelId');
 if (isReady && diopter && returnModelId) {
   const model = filtered.find((i) => i.modelId === returnModelId);
   if (model && modelSupportsDiopter(model as any, diopter)) {
-    throw redirect(
-      302,
-      `/model/${encodeURIComponent(returnModelId)}?diopter=${encodeURIComponent(diopter)}`
-    );
+    const from = encodeURIComponent(url.pathname + url.search);
+
+throw redirect(
+  302,
+  `/model/${encodeURIComponent(returnModelId)}?diopter=${encodeURIComponent(diopter)}&from=${from}`
+);
   }
 }
 

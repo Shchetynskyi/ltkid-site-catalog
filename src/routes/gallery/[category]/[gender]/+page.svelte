@@ -371,7 +371,7 @@
         ? `${returnUrl}?diopter=${encodeURIComponent(diopter!)}`
         : `/model/${encodeURIComponent(item.modelId)}?${new URLSearchParams({
             ...(diopter ? { diopter } : {}),
-            from: $page.url.pathname + $page.url.search
+            from: encodeURIComponent($page.url.pathname + $page.url.search)
           }).toString()}`
     }
   >
