@@ -422,91 +422,104 @@
 </section>
 
 <style>
-  .gallery {
-  padding: 16px 16px 120px;
-}
+  :global(body) {
+    background: #fbf7f1; /* тепліше тло для довіри */
+  }
 
+  .gallery {
+    padding: 16px 16px 120px;
+  }
 
   .notice {
     margin: 10px 0 12px;
     padding: 12px 14px;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.10);
     border-radius: 16px;
     font-weight: 800;
-    background: rgba(0, 0, 0, 0.04);
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   }
 
+  /* STICKY HEADER (залишається хедером) */
   .gallery-toolbar {
     position: sticky;
     top: 0;
     z-index: 5;
-    padding: 12px 0 12px;
-    background: rgba(255, 255, 255, 0.92);
+
+    padding: 12px 16px;
+    margin: 0 -16px 12px;
+
+    background: rgba(251, 247, 241, 0.96);
+    border-bottom: 1px solid rgba(0,0,0,0.10);
     backdrop-filter: blur(8px);
+
     display: grid;
     gap: 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .filter-header {
+    display: grid;
+    grid-template-columns: 1fr auto !important;
+    align-items: center;
+    column-gap: 12px;
+  }
+
+  .filter-label {
+    margin-bottom: 0;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 900;
+    color: #111;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   .filters {
-  display: flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 
-/* сховати скролбар у фільтрі ширини */
-.filters {
-  scrollbar-width: none;          /* Firefox */
-}
+    scrollbar-width: none;
+  }
 
-.filters::-webkit-scrollbar {
-  display: none;                  /* Chrome / Android */
-}
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
 
-  
-.filter-label {
-  margin-bottom: 0;
-  font-size: 18px;
-  line-height: 1.2;
-  font-weight: 800;
-  color: #000;
-  white-space: nowrap;
-  min-width: 0;   /* КЛЮЧОВО */
-}
-
-
-
+  /* Pills: теплі, “салон”, не “адмінка” */
   .filter-item {
-  font-weight: 900;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 999px;
-  padding: 14px 18px;
-  cursor: pointer;
-  user-select: none;
-  background: rgba(0, 0, 0, 0.04);
-  color: #000;
-  font-size: 18px;
-}
+    font-weight: 900;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
 
-/* компактні кнопки ТІЛЬКИ для фільтра ширини */
-.filters .filter-item {
-  padding: 8px 12px;
-  font-size: 15px;
-  white-space: nowrap;   /* ключове — без переносів */
-}
+    background: #fff;
+    color: #111;
 
+    font-size: 16px;
+    white-space: nowrap;
 
-
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
 
   .filter-item.selected {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-}
+    background: #111;
+    color: #fff;
+    border-color: #111;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+  }
 
+  .filter-item--header {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    margin-left: auto;
+    white-space: nowrap;
+  }
 
   .toolbar-row {
     display: flex;
@@ -516,27 +529,32 @@
   }
 
   .results-count {
-    font-size: 14px;
-    color: #555;
-    font-weight: 700;
+    font-size: 15px;
+    color: #333;
+    font-weight: 800;
   }
 
- 
+  .view-toggle {
+    border: 1px solid rgba(0,0,0,0.14);
+    background: #fff;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
 
   .gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  padding-top: 12px;
-}
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding-top: 8px;
+  }
 
-.gallery-grid.single {
-  grid-template-columns: 1fr;
-}
-
-
-
-
+  .gallery-grid.single {
+    grid-template-columns: 1fr;
+  }
 
   .product-card {
   display: grid;
@@ -544,23 +562,26 @@
   text-decoration: none;
   color: inherit;
 
-  border: 2px solid rgba(0, 0, 0, 0.22); /* чіткіше */
-  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
 
   padding: 12px;
   background: #fff;
+
+  /* ключ: світлова межа + природна тінь */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    0 16px 34px rgba(0, 0, 0, 0.12),
+    0 3px 10px rgba(0, 0, 0, 0.05);
 
   content-visibility: auto;
   contain-intrinsic-size: 280px;
 }
 
-
-
-
   .media {
     border-radius: 16px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.05);
+    background: #f6efe6;
     aspect-ratio: 4 / 3;
     display: grid;
     place-items: center;
@@ -583,65 +604,54 @@
   .media-fallback-text {
     font-weight: 900;
     font-size: 18px;
-    color: #555;
+    color: #666;
     letter-spacing: 0.08em;
   }
 
   .meta {
-  display: grid;
-  gap: 12px;
-}
-
-
-  .id {
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 1.2;
-  color: #555;
-  margin-top: 6px;
-}
-
-
+    display: grid;
+    gap: 10px;
+  }
 
   .price {
-  margin-top: 10px;
-  display: inline-block;
+  margin-top: 8px;
 
-  font-size: 26px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 950;
 
   color: #000;
-  background: rgba(0, 0, 0, 0.06);
-  padding: 8px 12px;
-  border-radius: 12px;
-}
-
-.mkt {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.35;
-  color: #000;
-
   letter-spacing: 0.3px;
 }
 
+  .mkt {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #111;
+    letter-spacing: 0.2px;
+  }
 
-.lens {
-  font-size: 22px;
-  font-weight: 700;
-  color: #000;
-  margin-top: 4px;
-}
+  .lens {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    opacity: 0.9;
+  }
 
-.id.id-primary {
-  font-size: 20px;
-  font-weight: 700;
-  color: #000;
-}
+  .id {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.2;
+    color: #555;
+    margin-top: 2px;
+  }
 
-
-
+  .id.id-primary {
+    font-size: 17px;
+    font-weight: 800;
+    color: #111;
+  }
 
   .empty {
     padding: 18px 0;
@@ -665,32 +675,27 @@
     font-weight: 900;
     cursor: pointer;
     width: fit-content;
-    background: transparent;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   }
 
-  .filter-header {
-  display: grid;
-  grid-template-columns: 1fr auto !important;
-
-  align-items: center;
-  column-gap: 12px;
-}
-
-
-.filter-item--header {
-  display: inline-flex;
-  align-items: center;
-  width: auto;
-  margin-left: auto;
-  white-space: nowrap;
-}
-
-
   @media (min-width: 640px) {
+    :global(body) {
+  background: #f3ede5;
+  }
+
     .gallery {
       padding: 16px 24px 28px;
       max-width: 1100px;
       margin: 0 auto;
+    }
+
+    .gallery-toolbar {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,0.10);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.06);
     }
 
     .gallery-grid {
@@ -698,19 +703,8 @@
       gap: 16px;
     }
 
-    .product-card {
-      padding: 14px;
-      border-radius: 22px;
-    }
-
-    .media {
-      border-radius: 18px;
-    }
-
     .gallery-grid.single {
-  grid-template-columns: 1fr;
-}
-
-
+      grid-template-columns: 1fr;
+    }
   }
 </style>
