@@ -1,5 +1,3 @@
-// src/lib/catalog/catalog.types.ts
-
 export interface CatalogItem {
   modelId: string;
   marketingTitle: string;
@@ -20,9 +18,11 @@ export interface CatalogItem {
   // SSOT: список діоптрій як рядок (може бути порожній)
   DiopterValues?: string;
 
-    // технічний код типу лінз (NONE | BB | PHOTO | TINT)
+  // технічний код типу лінз (NONE | BB | PHOTO | TINT)
   TypeLens?: string;
 
+  // 🔑 пріоритет каталогу (1 = найвище)
+  priority: number | null;
 
   // legacy поле (НЕ використовується для READY/FRAMES)
   hasManufacturerDiopters: boolean;
