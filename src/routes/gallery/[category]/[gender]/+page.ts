@@ -21,11 +21,9 @@ function buildMessengerUrlWithDiopter(diopter: string): string {
   const base = normalizeBase(MANAGER_MESSENGER_URL);
   const url = new URL(base);
 
-  // залишаємо твій ref (менеджеру/аналітиці)
   const refParts = [`mid=CATALOG`, `t=CATALOG`, `p=—`, `d=${diopter}`];
   url.searchParams.set('ref', refParts.join('|'));
 
-  // додаємо людський prefill (клієнт бачить)
   const text =
     `З моїми лінзами не знайшлося готових окулярів у каталозі.\n` +
     `Потрібна допомога менеджера.\n\n` +
@@ -36,9 +34,6 @@ function buildMessengerUrlWithDiopter(diopter: string): string {
 
   return url.toString();
 }
-
-
-
 
 // Extract ONLY tokens like +3.00 / -0.75 from possibly noisy strings
 const DIO_RE = /[+-]\d+(?:\.\d{2})/g;
@@ -65,43 +60,38 @@ export const load: PageLoad = async ({ params, parent, url }) => {
 
   const activeRange = url.searchParams.get('w') ?? 'ALL';
   const rawDiopter = url.searchParams.get('diopter') ?? '';
-const diopter = rawDiopter.replace(/\s+/g, '').trim() || null;
+  const diopter = rawDiopter.replace(/\s+/g, '').trim() || null;
 
   const isReady = category === 'ready';
-
-  
-
 
   console.time('[P3] filterByCategoryAndGender');
   const filtered = filterByCategoryAndGender(catalog, category, gender);
 
-const returnModelId = url.searchParams.get('returnModelId');
+  const returnModelId = url.searchParams.get('returnModelId');
 
-if (isReady && diopter && returnModelId) {
-  const model = filtered.find((i) => i.modelId === returnModelId);
-  if (model && modelSupportsDiopter(model as any, diopter)) {
-    throw redirect(
-      302,
-      `/model/${encodeURIComponent(returnModelId)}?diopter=${encodeURIComponent(diopter)}`
-    );
+  if (isReady && diopter && returnModelId) {
+    const model = filtered.find((i) => i.modelId === returnModelId);
+    if (model && modelSupportsDiopter(model as any, diopter)) {
+      const from = encodeURIComponent(url.pathname + url.search);
+
+      throw redirect(
+        302,
+        `/model/${encodeURIComponent(returnModelId)}?diopter=${encodeURIComponent(diopter)}&from=${from}`
+      );
+    }
   }
-}
 
   console.timeEnd('[P3] filterByCategoryAndGender');
-
-  // NOTE: width filter remains in +page.svelte (existing behavior).
-  // Here we ONLY enforce Phase 3 rule: when ready + diopter present and there are ZERO matches,
-  // redirect immediately BEFORE page mounts.
 
   if (isReady && diopter) {
     console.time('[P3] diopter precheck');
     let hasAny = false;
     for (const it of filtered) {
-  if (modelSupportsDiopter(it as any, diopter)) {
-    hasAny = true;
-    break;
-  }
-}
+      if (modelSupportsDiopter(it as any, diopter)) {
+        hasAny = true;
+        break;
+      }
+    }
 
     console.timeEnd('[P3] diopter precheck');
 
@@ -112,24 +102,32 @@ if (isReady && diopter && returnModelId) {
   }
 
   console.time('[P3] map items');
-  const mapped = filtered.map((i) => ({
+  const filteredSorted = [...filtered].sort((a, b) => {
+  const pa = (a as any).priority ?? 999;
+  const pb = (b as any).priority ?? 999;
+
+  if (pa !== pb) return pa - pb;
+
+  return (a as any).marketingTitle?.localeCompare((b as any).marketingTitle ?? '') 
+    || a.modelId.localeCompare(b.modelId);
+});
+const mapped = filteredSorted.map((i) => ({
     modelId: i.modelId,
     marketingTitle: i.marketingTitle,
 
-    // IMPORTANT: pass same field as model page uses
-    mainImage: (i as any).mainImage ?? null,
-
-    // keep existing field (might be used elsewhere)
-    previewImage: (i as any).previewImage ?? null,
+    mainImage: i.mainImage,
+previewImage: i.previewImage,
 
     SitePriceUAH: (i as any).SitePriceUAH ?? '',
     frameWidth: i.frameWidth ?? null,
-    DiopterValues: (i as any).DiopterValues ?? null
-  }));
-  console.timeEnd('[P3] map items');
+    DiopterValues: (i as any).DiopterValues ?? null,
 
+    TypeLens: (i as any).TypeLens ?? null,
+    priority: (i as any).priority ?? null
+  }));
+
+  console.timeEnd('[P3] map items');
   console.timeEnd('[P3] load total');
 
-  // keep signature unchanged
   return { items: mapped, _w: activeRange };
 };

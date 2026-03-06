@@ -9,16 +9,17 @@ type Cache = {
 };
 
 let cache: Cache | null = null;
-const TTL_MS = 10 * 60 * 1000; // 10 хв
+const TTL_MS = import.meta.env.DEV ? 10 * 1000 : 10 * 60 * 1000;
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
+export const load: LayoutServerLoad = async ({ fetch, url }) => {
   const now = Date.now();
+  const forceFresh = url.searchParams.has('refresh');
 
-  if (cache && now - cache.at < TTL_MS) {
+  if (!forceFresh && cache && now - cache.at < TTL_MS) {
     return { catalog: cache.catalog };
   }
 
-  const catalog = await fetchCatalog(fetch);
+  const catalog = await fetchCatalog(fetch, { forceFresh });
 
   cache = { at: now, catalog };
 

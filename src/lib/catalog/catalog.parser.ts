@@ -1,6 +1,6 @@
 // src/lib/catalog/catalog.parser.ts
 import Papa from 'papaparse';
-import type { CatalogItem } from './catalog.types';
+import type { CatalogItem } from '$lib/catalog/catalog.types';
 
 type CsvRow = Record<string, string>;
 
@@ -68,12 +68,20 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
     });
 
   const items: CatalogItem[] = [];
+  const seen = new Set<string>();
 
   for (const row of rows) {
     if (!isVisible(row)) continue;
 
     const modelId = row['ModelID']?.trim() ?? '';
     if (!modelId) continue;
+
+    // 🔒 захист від дублювання ModelID
+    if (seen.has(modelId)) {
+      console.warn('Duplicate ModelID skipped:', modelId);
+      continue;
+    }
+    seen.add(modelId);
 
     items.push({
       modelId,
@@ -83,7 +91,6 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       previewImage: normalizeImageUrl(row['Прев’ю']),
       mainImage: normalizeImageUrl(row['Фото (URL)']),
 
-      // ✅ SSOT: єдине поле ціни для сайту
       SitePriceUAH: (row['SitePriceUAH'] ?? '').trim(),
 
       tryOn: toBoolean(row['TryOn']),
@@ -92,13 +99,23 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       frameWidth: toNumberOrNull(row['Ширина оправи (мм)']),
       frameHeight: toNumberOrNull(row['Висота оправи (мм)']),
 
-      // 🔑 SSOT: READY визначається тут
       DiopterValues: (row['DiopterValues'] ?? '').trim(),
 
-      // legacy (більше не використовується для READY)
+      TypeLens: (row['TypeLens'] ?? '').trim(),
+
+      priority: toNumberOrNull(row['Пріоритет']),
+
       hasManufacturerDiopters: hasManufacturerDiopters(row)
     });
   }
+
+  // сортування по пріоритету
+  items.sort((a, b) => {
+    const pa = a.priority ?? 999;
+    const pb = b.priority ?? 999;
+    if (pa !== pb) return pa - pb;
+    return a.modelId.localeCompare(b.modelId);
+  });
 
   return items;
 }

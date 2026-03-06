@@ -5,8 +5,9 @@
   import { onDestroy, tick } from 'svelte';
   import { managerLeadPayload } from '$lib/lead/managerContext.store';
   import { MANAGER_MESSENGER_URL } from '$lib/config/links';
-
-
+  import { getLensTypeLabel } from "$lib/catalog/lensTypeLabel";
+  import { getLensTypeVendorTag } from "$lib/catalog/lensTypeVendorTag";
+  import { getPublicModelId } from "$lib/catalog/publicModelId";
 
   
 
@@ -23,6 +24,9 @@
 
     frameWidth?: number | null;
     frameHeight?: number | null;
+
+    TypeLens?: string | null;
+
 
     tryOn?: boolean;
     aiPreview?: boolean;
@@ -81,7 +85,7 @@ function buildMessengerPrefillUrl(ref: string): string {
     try {
       const decoded = decodeURIComponent(fromRaw);
       const u = new URL(decoded, 'https://local.base'); // підтримка relative path
-      u.searchParams.delete('diopter');                 // ключовий FIX
+                     // ключовий FIX
 
       const qs = u.searchParams.toString();
       const cleaned = `${u.pathname}${qs ? `?${qs}` : ''}${u.hash || ''}`;
@@ -170,26 +174,36 @@ function buildMessengerPrefillUrl(ref: string): string {
 
     <div class="hero-card">
 
-      <h1 class="title">{title}</h1>
-
-
-  <div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
-  {#if diopterUi}
+      {#if diopterUi}
   <div class="diopter-badge">
-    Підібрано для діоптрії: {diopterUi}
+    Підібрано для {diopterUi}
   </div>
 {:else}
   <a
     class="pick-vision-link"
     href={`/gallery/ready/${encodeURIComponent(item.gender || 'унісекс')}/diopter?return=${encodeURIComponent(`/model/${item.modelId}`)}&returnModelId=${encodeURIComponent(item.modelId)}`}
-
-
-
     aria-label="Підібрати цю модель під мій зір"
   >
     Підібрати під мій зір
   </a>
 {/if}
+
+<div class="price" aria-label="Ціна">{getPriceLabel(item.SitePriceUAH)}</div>
+
+{#if item.marketingTitle}
+  <h1 class="title">{item.marketingTitle}</h1>
+{/if}
+
+{#if getLensTypeLabel(item.TypeLens)}
+  <div class="lens">{getLensTypeLabel(item.TypeLens)}</div>
+{/if}
+
+<div class="id" class:id-primary={!item.marketingTitle}>
+  {getPublicModelId(item.modelId)}
+  {#if getLensTypeVendorTag(item.TypeLens)}
+    {" "}{getLensTypeVendorTag(item.TypeLens)}
+  {/if}
+</div>
 
 
 
@@ -396,24 +410,25 @@ window.location.href = buildMessengerPrefillUrl(ref);
   letter-spacing: -0.02em;
   color: #111;
 
-  margin-top: 6px;   /* КЛЮЧ: відділяє від назви */
+  margin-top: 12px;   /* КЛЮЧ: відділяє від назви */
 }
 
-  .diopter-badge {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 10px 16px;
-    border-radius: 999px;
+ .diopter-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 8px 14px;
+  border-radius: 999px;
 
-    font-size: clamp(16px, 5.5vw, 20px);
-    line-height: 1.28;
-    font-weight: 900;
+  font-size: clamp(16px, 5.5vw, 20px);
+  line-height: 1.3;
+  font-weight: 700;
 
-    border: 1px solid rgba(0, 0, 0, 0.18);
-    background: #f3f3f3;
-    color: #111;
-    text-align: center;
-  }
+  border: 1px solid #e7d8c7;
+  background: #f6efe6;
+  color: #111;
+
+  text-align: center;
+}
 
   .title {
     margin: 0;
@@ -424,6 +439,27 @@ window.location.href = buildMessengerPrefillUrl(ref);
     color: #111;
     margin-bottom: 6px;
   }
+
+  .lens {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin-top: 4px;
+}
+
+.id {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #555;
+  margin-top: 6px;
+}
+
+.id.id-primary {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+}
 
   .card {
     padding: 16px;
@@ -607,6 +643,9 @@ window.location.href = buildMessengerPrefillUrl(ref);
     .title {
       font-size: 22px;
     }
+
+    
+
 
     .cta {
       left: 50%;

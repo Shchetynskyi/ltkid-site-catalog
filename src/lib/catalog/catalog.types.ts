@@ -20,6 +20,12 @@ export interface CatalogItem {
   // SSOT: список діоптрій як рядок (може бути порожній)
   DiopterValues?: string;
 
+  // технічний код типу лінз (NONE | BB | PHOTO | TINT)
+  TypeLens?: string;
+
+  // 🔑 НОВЕ: пріоритет показу в каталозі (чим більше — тим вище)
+  priority: number | null;
+
   // legacy поле (НЕ використовується для READY/FRAMES)
   hasManufacturerDiopters: boolean;
 }
