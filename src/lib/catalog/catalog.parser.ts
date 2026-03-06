@@ -1,4 +1,3 @@
-// src/lib/catalog/catalog.parser.ts
 import Papa from 'papaparse';
 import type { CatalogItem } from './catalog.types';
 
@@ -46,8 +45,10 @@ function normalizeImageUrl(raw: unknown): string {
   if (!url) return '';
   if (/^https?:\/\/drive\.google\.com\/thumbnail\?/i.test(url)) return url;
   if (/^https?:\/\/lh3\.googleusercontent\.com\//i.test(url)) return url;
+
   const id = extractDriveFileId(url);
   if (id) return 'https://drive.google.com/thumbnail?id=' + id + '&sz=w1200';
+
   return url;
 }
 
@@ -83,7 +84,6 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       previewImage: normalizeImageUrl(row['Прев’ю']),
       mainImage: normalizeImageUrl(row['Фото (URL)']),
 
-      // ✅ SSOT: єдине поле ціни для сайту
       SitePriceUAH: (row['SitePriceUAH'] ?? '').trim(),
 
       tryOn: toBoolean(row['TryOn']),
@@ -92,17 +92,26 @@ export function parseCatalogCsv(csvText: string): CatalogItem[] {
       frameWidth: toNumberOrNull(row['Ширина оправи (мм)']),
       frameHeight: toNumberOrNull(row['Висота оправи (мм)']),
 
-      // 🔑 SSOT: READY визначається тут
       DiopterValues: (row['DiopterValues'] ?? '').trim(),
 
-             // ✅ тип лінз (технічний код)
       TypeLens: (row['TypeLens'] ?? '').trim(),
 
+      // 🔑 читаємо пріоритет
+      priority: toNumberOrNull(row['Пріоритет']),
 
-      // legacy (більше не використовується для READY)
       hasManufacturerDiopters: hasManufacturerDiopters(row)
     });
   }
+
+  // 🔑 сортування каталогу
+  items.sort((a, b) => {
+    const pa = a.priority ?? 999;
+    const pb = b.priority ?? 999;
+
+    if (pa !== pb) return pa - pb;
+
+    return a.modelId.localeCompare(b.modelId);
+  });
 
   return items;
 }
