@@ -12,9 +12,6 @@ function withCacheBuster(url: string, enabled: boolean): string {
   return url.includes('?') ? `${url}&ts=${ts}` : `${url}?ts=${ts}`;
 }
 
-// Client-side memo (per session). Server caching is handled in +layout.server.ts.
-let catalogPromise: Promise<CatalogItem[]> | null = null;
-
 export async function fetchCatalogRaw(
   fetchFn: typeof fetch,
   opts?: { forceFresh?: boolean }
@@ -32,23 +29,7 @@ export async function fetchCatalog(
   fetchFn: typeof fetch,
   opts?: { forceFresh?: boolean }
 ): Promise<CatalogItem[]> {
-  const forceFresh = !!opts?.forceFresh;
-
-
-  if (!forceFresh) {
-    if (!catalogPromise) {
-      catalogPromise = (async () => {
-        const csv = await fetchCatalogRaw(fetchFn, { forceFresh: false });
-        return parseCatalogCsv(csv);
-      })().catch((err) => {
-        // allow retry on next call if initial attempt failed
-        catalogPromise = null;
-        throw err;
-      });
-    }
-    return catalogPromise;
-  }
-
+  // Always fetch fresh on the client to reflect Google Sheet changes without dev-server restart.
   const csv = await fetchCatalogRaw(fetchFn, { forceFresh: true });
   return parseCatalogCsv(csv);
 }
