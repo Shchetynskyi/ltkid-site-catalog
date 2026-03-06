@@ -18,7 +18,7 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
     return { catalog: cache.catalog };
   }
 
-  const catalog = await fetchCatalog(fetch);
+  const catalog = await fetchCatalog(fetch, { forceFresh: true });
 
   cache = { at: now, catalog };
 
