@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { onDestroy, tick } from 'svelte';
   import { managerLeadPayload } from '$lib/lead/managerContext.store';
-  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { MANAGER_LINKS } from '$lib/config/links';
   import { getLensTypeLabel } from "$lib/catalog/lensTypeLabel";
   import { getLensTypeVendorTag } from "$lib/catalog/lensTypeVendorTag";
   import { getPublicModelId } from "$lib/catalog/publicModelId";
@@ -45,19 +45,20 @@
   return `https://${trimmed.replace(/^\/+/, '')}`;
 }
 
-function buildManagerUrl(ref: string): string {
-  const base = normalizeBase(MANAGER_MESSENGER_URL);
-  const url = new URL(base);
-  url.searchParams.set('ref', ref);
-  return url.toString();
-}
 
 function buildMessengerPrefillUrl(ref: string): string {
-  const base = normalizeBase(MANAGER_MESSENGER_URL);
+
+  const manager = $page.url.searchParams.get('manager') || 'okuliarko';
+
+  const base =
+    manager === 'plusminus'
+      ? 'https://m.me/123853797474820'
+      : 'https://m.me/101402489688578';
+
   const url = new URL(base);
 
-  url.searchParams.set('ref', 'mc6_v2'); // тригер ManyChat
-  url.searchParams.set('text', ref);     // префіл у полі вводу
+  url.searchParams.set('ref', 'mc6_v2');
+  url.searchParams.set('text', ref);
 
   return url.toString();
 }

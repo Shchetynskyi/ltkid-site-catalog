@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { get } from 'svelte/store';
-  import { MANAGER_MESSENGER_URL } from '$lib/config/links';
+  import { MANAGER_LINKS } from '$lib/config/links';
 
   function buildUrl(basePath: string) {
     const p = get(page);
@@ -25,22 +25,25 @@
   }
 
   function buildMessengerPrefillUrl(text: string): string {
-    const base = normalizeBase(MANAGER_MESSENGER_URL);
-    const url = new URL(base);
-    url.searchParams.set('ref', 'mc6_v2');
-    url.searchParams.set('text', text);
-    return url.toString();
-  }
+  const manager = get(page).url.searchParams.get('manager') || 'okuliarko';
+
+  const base = normalizeBase(
+    manager === 'plusminus' ? MANAGER_LINKS.plusminus : MANAGER_LINKS.okuliarko
+  );
+
+  const url = new URL(base);
+  url.searchParams.set('ref', 'mc6_v2');
+  url.searchParams.set('text', text);
+  return url.toString();
+}
 
   function goPlus() {
-    const gender = get(page).params.gender as string;
-    window.location.href = buildUrl(`/gallery/ready/${gender}/diopter/plus`);
-  }
+  window.location.href = buildUrl(`/gallery/ready/all/diopter/plus`);
+}
 
-  function goMinus() {
-    const gender = get(page).params.gender as string;
-    window.location.href = buildUrl(`/gallery/ready/${gender}/diopter/minus`);
-  }
+function goMinus() {
+  window.location.href = buildUrl(`/gallery/ready/all/diopter/minus`);
+}
 
   function goMessenger() {
     const text =
@@ -72,10 +75,7 @@
       </div>
     </button>
 
-    <button class="manager" on:click={goMessenger} aria-label="Уточнити з менеджером">
-      Уточнити з менеджером
-    </button>
-  </div>
+      </div>
 </section>
 
 <style>
@@ -182,18 +182,7 @@
     border-color: rgba(255, 255, 255, 0.35);
   }
 
-  .manager {
-  width: 100%;
-  height: 64px;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #111;
-  color: #fff;
-  font-size: 20px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 14px;
-}
+  
   @media (min-width: 640px) {
     .diopter {
       max-width: 1100px;
@@ -211,12 +200,7 @@
       border-radius: 22px;
     }
 
-    .manager {
-      grid-column: 1 / -1;
-      height: 68px;
-      font-size: 22px;
-    }
-
+    
     .card__title {
       font-size: 46px;
     }

@@ -100,13 +100,17 @@ export function filterByCategoryAndGender(
   const g = norm(genderParam);
 
   const byCategory =
-    c === 'ready'
-      ? items.filter((i) => hasReadyDiopters(i))
-      : items.filter((i) => !hasReadyDiopters(i));
+  c === 'ready'
+    ? items.filter((i) => hasReadyDiopters(i))
+    : items.filter((i) => !hasReadyDiopters(i));
 
-  if (g === 'унісекс' || g === 'unisex' || g === 'унисекс') {
-    return byCategory.filter((i) => isUnisexValue(i.gender));
-  }
+if (g === 'all') {
+  return byCategory;
+}
+
+if (g === 'унісекс' || g === 'unisex' || g === 'унисекс') {
+  return byCategory.filter((i) => isUnisexValue(i.gender));
+}
 
   if (g === 'жіноча' || g === 'женская' || g === 'female' || g === 'w') {
     return byCategory.filter((i) => isFemaleValue(i.gender) || isUnisexValue(i.gender));
