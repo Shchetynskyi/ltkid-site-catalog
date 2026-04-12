@@ -620,3 +620,24 @@ Result:
 4. Логіка однакова для:
    - Gallery card
    - Model page
+
+## Entry Flow Simplification (2026-04)
+
+Рішення:
+- Повністю прибрано вибір гендеру на старті
+- Прибрано екран "Підібрати / Показати всі"
+- Новий entry:
+  - Для читання (+)
+  - Для дали (−)
+
+Flow:
+type (+/−) → вибір діоптрії → gallery → model
+
+Технічно:
+- додано режим `gender=all` у filterByCategoryAndGender
+- всі diopter routes переведені на `/gallery/ready/all/...`
+- select route прибраний з основного flow (redirect)
+- стартова сторінка переписана без HOME_CARDS
+
+Не реалізовано (відкладено):
+- сценарій "За рецептом"
