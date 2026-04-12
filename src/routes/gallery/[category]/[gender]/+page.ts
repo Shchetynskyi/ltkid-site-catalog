@@ -73,7 +73,7 @@ const diopter = rawDiopter.replace(/\s+/g, '').trim() || null;
 
 
   console.time('[P3] filterByCategoryAndGender');
-  const filtered = filterByCategoryAndGender(catalog, category, gender);
+  const filtered = filterByCategoryAndGender(catalog, category, 'all');
 
 const returnModelId = url.searchParams.get('returnModelId');
 
@@ -118,18 +118,17 @@ throw redirect(
   modelId: i.modelId,
   marketingTitle: i.marketingTitle,
 
-  // IMPORTANT: pass same field as model page uses
   mainImage: (i as any).mainImage ?? null,
-
-  // keep existing field (might be used elsewhere)
   previewImage: (i as any).previewImage ?? null,
 
   SitePriceUAH: (i as any).SitePriceUAH ?? '',
   frameWidth: i.frameWidth ?? null,
   DiopterValues: (i as any).DiopterValues ?? null,
 
-  // 🔑 додаємо тип лінз
-  TypeLens: (i as any).TypeLens ?? null
+  TypeLens: (i as any).TypeLens ?? null,
+
+  // 🔑 додано
+  gender: i.gender
 }));
 
   console.timeEnd('[P3] map items');

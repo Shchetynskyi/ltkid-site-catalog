@@ -23,16 +23,13 @@
   type GalleryItem = FrameWidthItem & {
   modelId: string;
   marketingTitle: string;
-
-  // IMPORTANT: use same image field as model page
   mainImage?: string;
-
   SitePriceUAH?: string | number | null;
-
-  // Phase 3 (ready-only)
   DiopterValues?: string | null;
-
   TypeLens?: string | null;
+
+  // 🔑 додано
+  gender?: string;
 };
 
 
@@ -126,6 +123,14 @@
   }
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
+  let genderFilter = readGenderFromUrl();
+
+function readGenderFromUrl(): 'all' | 'female' | 'male' {
+  const v = $page.url.searchParams.get('gf');
+  if (v === 'female') return 'female';
+  if (v === 'male') return 'male';
+  return 'all';
+}
   let notice: string | null = readNoticeFromUrl();
 
   $: {
@@ -135,20 +140,48 @@
 
   $: diopter = readDiopterFromUrl();
 
+  
   $: returnUrl = $page.url.searchParams.get('return')?.trim() || null;
 
   $: returnModelId = $page.url.searchParams.get('returnModelId')?.trim() || null;
 
 
 
-  // base width filter (existing behavior)
-  $: widthFiltered = filterByFrameWidth(data.items, activeRange);
+  // 1. фільтр по статі
+$: genderFiltered =
+  genderFilter === 'all'
+    ? data.items
+    : data.items.filter((item) => {
+        const g = (item.gender || '').trim().toLowerCase();
 
-  // Phase 3 diopter filter (ready-only)
-  $: visibleItems =
-    isReadyCategory() && diopter
-      ? widthFiltered.filter((item) => diopterContains(item.modelId, diopter))
-      : widthFiltered;
+        const isUnisex =
+          g === 'унісекс' || g === 'unisex' || g === 'унисекс';
+
+        const isFemale =
+          g === 'жіноча' || g === 'женская' || g === 'female' || g === 'w';
+
+        const isMale =
+          g === 'чоловіча' || g === 'мужская' || g === 'male' || g === 'm';
+
+        if (genderFilter === 'female') {
+          return isFemale || isUnisex;
+        }
+
+        if (genderFilter === 'male') {
+          return isMale || isUnisex;
+        }
+
+        return true;
+      });
+
+// 2. фільтр по ширині
+$: widthFiltered = filterByFrameWidth(genderFiltered, activeRange);
+
+// 3. фільтр по діоптрії
+$: visibleItems =
+  isReadyCategory() && diopter
+    ? widthFiltered.filter((item) => diopterContains(item.modelId, diopter))
+    : widthFiltered;
 
   function setRange(key: FrameWidthRangeKey): void {
     activeRange = key;
@@ -163,6 +196,17 @@
   function showAll(): void {
     setRange('ALL');
   }
+
+  function setGenderFilter(v: 'all' | 'female' | 'male') {
+  genderFilter = v;
+
+  const url = new URL($page.url);
+
+  if (v === 'all') url.searchParams.delete('gf');
+  else url.searchParams.set('gf', v);
+
+  goto(url.pathname + url.search, { replaceState: true, noScroll: true });
+}
 
   function onKeyActivate(e: KeyboardEvent, fn: () => void): void {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -268,6 +312,35 @@
 
   <div class="gallery-toolbar">
   <div class="filter-header">
+  <!-- 🔑 ФІЛЬТР СТАТІ -->
+<div class="filters" aria-label="Фільтр статі">
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={genderFilter === 'all'}
+    on:click={() => setGenderFilter('all')}
+  >
+    Всі
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={genderFilter === 'female'}
+    on:click={() => setGenderFilter('female')}
+  >
+    Жіночі
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={genderFilter === 'male'}
+    on:click={() => setGenderFilter('male')}
+  >
+    Чоловічі
+  </button>
+</div>
     <div class="filter-label">Ширина оправи (мм)</div>
 
     {#each FRAME_WIDTH_RANGES as r (r.key)}
