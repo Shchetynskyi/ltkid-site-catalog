@@ -68,6 +68,16 @@
     return t ? t : null;
   }
 
+  function readLensFromUrl(): 'PHOTO' | 'TINT' | 'BB' | null {
+  const v = ($page.url.searchParams.get('lens') ?? '').trim().toUpperCase();
+
+  if (v === 'PHOTO') return 'PHOTO';
+  if (v === 'TINT') return 'TINT';
+  if (v === 'BB') return 'BB';
+
+  return null;
+}
+
   function isReadyCategory(): boolean {
     return $page.params.category === 'ready';
   }
@@ -125,6 +135,8 @@
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
   let genderFilter = readGenderFromUrl();
 
+  let lensFilter = readLensFromUrl();
+
 function readGenderFromUrl(): 'all' | 'female' | 'male' {
   const v = $page.url.searchParams.get('gf');
   if (v === 'female') return 'female';
@@ -138,6 +150,7 @@ function readGenderFromUrl(): 'all' | 'female' | 'male' {
     if (nextNotice !== notice) notice = nextNotice;
   }
 
+ 
   $: diopter = readDiopterFromUrl();
 
   
@@ -177,11 +190,17 @@ $: genderFiltered =
 // 2. фільтр по ширині
 $: widthFiltered = filterByFrameWidth(genderFiltered, activeRange);
 
+// 3. фільтр по типу лінз
+$: lensFiltered =
+  lensFilter === null
+    ? widthFiltered
+    : widthFiltered.filter((item) => item.TypeLens === lensFilter);
+
 // 3. фільтр по діоптрії
 $: visibleItems =
   isReadyCategory() && diopter
-    ? widthFiltered.filter((item) => diopterContains(item.modelId, diopter))
-    : widthFiltered;
+    ? lensFiltered.filter((item) => diopterContains(item.modelId, diopter))
+    : lensFiltered;
 
   function setRange(key: FrameWidthRangeKey): void {
     activeRange = key;
@@ -204,6 +223,17 @@ $: visibleItems =
 
   if (v === 'all') url.searchParams.delete('gf');
   else url.searchParams.set('gf', v);
+
+  goto(url.pathname + url.search, { replaceState: true, noScroll: true });
+}
+
+function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
+  lensFilter = v;
+
+  const url = new URL($page.url);
+
+  if (v === null) url.searchParams.delete('lens');
+  else url.searchParams.set('lens', v);
 
   goto(url.pathname + url.search, { replaceState: true, noScroll: true });
 }
@@ -311,6 +341,43 @@ $: visibleItems =
 
 
   <div class="gallery-toolbar">
+  <div class="filters" aria-label="Фільтр типу лінз">
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === null}
+    on:click={() => setLensFilter(null)}
+  >
+    Всі
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'PHOTO'}
+    on:click={() => setLensFilter('PHOTO')}
+  >
+    Хамелеони
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'TINT'}
+    on:click={() => setLensFilter('TINT')}
+  >
+    Тоновані
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'BB'}
+    on:click={() => setLensFilter('BB')}
+  >
+    Блюблокери
+  </button>
+</div>
   <div class="filter-header">
   <!-- 🔑 ФІЛЬТР СТАТІ -->
 <div class="filters" aria-label="Фільтр статі">
@@ -341,51 +408,19 @@ $: visibleItems =
     Чоловічі
   </button>
 </div>
-    <div class="filter-label">Ширина оправи (мм)</div>
-
-    {#each FRAME_WIDTH_RANGES as r (r.key)}
-      {#if r.key === 'ALL'}
-        <div
-          role="button"
-          tabindex="0"
-          class="filter-item filter-item--header"
-
-          class:selected={activeRange === r.key}
-          aria-pressed={activeRange === r.key}
-          on:click={() => setRange(r.key)}
-          on:keydown={(e) => onKeyActivate(e, () => setRange(r.key))}
-        >
-          {r.label}
-        </div>
-      {/if}
-    {/each}
-  </div>
-
-
-
-
-
-    <div class="filters" aria-label="Фільтр ширини оправи">
+    
+<select
+  class="width-select"
+  aria-label="Фільтр ширини оправи"
+  bind:value={activeRange}
+  on:change={(e) => setRange((e.currentTarget as HTMLSelectElement).value as FrameWidthRangeKey)}
+>
   {#each FRAME_WIDTH_RANGES as r (r.key)}
-    {#if r.key !== 'ALL'}
-      <div
-        role="button"
-        tabindex="0"
-        class="filter-item"
-        class:selected={activeRange === r.key}
-        aria-pressed={activeRange === r.key}
-        on:click={() => setRange(r.key)}
-        on:keydown={(e) => onKeyActivate(e, () => setRange(r.key))}
-      >
-        {r.label}
-      </div>
-    {/if}
+    <option value={r.key}>{r.label}</option>
   {/each}
-</div>
-
-
-
-
+</select>
+  </div>
+    
     <div class="toolbar-row">
   <div class="results-count">
     Показано: <strong>{visibleItems.length}</strong>
@@ -530,32 +565,40 @@ $: visibleItems =
     gap: 12px;
   }
 
-  .filter-header {
-    display: grid;
-    grid-template-columns: 1fr auto !important;
-    align-items: center;
-    column-gap: 12px;
-  }
+ .filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
-  .filter-label {
-    margin-bottom: 0;
-    font-size: 18px;
-    line-height: 1.2;
-    font-weight: 900;
-    color: #111;
-    white-space: nowrap;
-    min-width: 0;
-  }
+    .width-select {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 999px;
+  padding: 10px 14px;
+
+  font-weight: 900;
+  font-size: 16px;
+
+  background: #fff;
+  color: #111;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+
+  appearance: none;
+  cursor: pointer;
+}
 
   .filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
 
-    scrollbar-width: none;
-  }
+  overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
 
   .filters::-webkit-scrollbar {
     display: none;
@@ -586,14 +629,7 @@ $: visibleItems =
     box-shadow: 0 8px 18px rgba(0,0,0,0.16);
   }
 
-  .filter-item--header {
-    display: inline-flex;
-    align-items: center;
-    width: auto;
-    margin-left: auto;
-    white-space: nowrap;
-  }
-
+  
   .toolbar-row {
     display: flex;
     align-items: center;
