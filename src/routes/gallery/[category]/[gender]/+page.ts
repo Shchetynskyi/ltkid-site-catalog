@@ -53,7 +53,8 @@ function diopterContains(values: string | null | undefined, d: string): boolean 
   return extractDiopters(values).includes(d);
 }
 
-export const load: PageLoad = async ({ params, parent, url }) => {
+export const load: PageLoad = async ({ params, parent, url, depends }) => {
+  depends('app:catalog');
   console.time('[P3] load total');
 
   console.time('[P3] parent()');
