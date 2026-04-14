@@ -478,3 +478,16 @@ Status: CLOSED ✅
 - Production (Vercel) оновлено і перевірено
 
 UI: Gallery + Model — тепліший стиль, читабельність 50–70, бейдж “Підібрано для +…” над ціною (коміти: c8d4604, aa7b68a)
+
+## [Feature] Mobile filter bar + TypeLens
+
+- Додано фільтр по типу лінз (TypeLens: PHOTO / TINT / BB)
+- Підтримка query param: `?lens=PHOTO|TINT|BB`
+- Інтеграція з існуючим funnel без змін логіки
+- Фінальний mobile layout:
+  - Ряд 1: TypeLens (Всі / Хамелеони / Тоновані / Блюблокери)
+  - Ряд 2: Gender + dropdown "Ширина"
+- Width filter переведено з chips у compact select
+- Виправлено double-click bug (reactive sync)
+- Виправлено дублювання label ("Показати всі")
+- Оптимізовано під mobile (без переносу, горизонтальний скрол)

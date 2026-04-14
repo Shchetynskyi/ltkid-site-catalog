@@ -16,6 +16,7 @@
   import { getPublicModelId } from "$lib/catalog/publicModelId";
   import { getLensTypeLabel } from "$lib/catalog/lensTypeLabel";
   import { getLensTypeVendorTag } from "$lib/catalog/lensTypeVendorTag";
+  import { gallerySingleColumn, showGalleryViewToggle } from '$lib/stores/galleryView';
 
 
 
@@ -23,16 +24,13 @@
   type GalleryItem = FrameWidthItem & {
   modelId: string;
   marketingTitle: string;
-
-  // IMPORTANT: use same image field as model page
   mainImage?: string;
-
   SitePriceUAH?: string | number | null;
-
-  // Phase 3 (ready-only)
   DiopterValues?: string | null;
-
   TypeLens?: string | null;
+
+  // 🔑 додано
+  gender?: string;
 };
 
 
@@ -70,6 +68,16 @@
     const t = v.trim();
     return t ? t : null;
   }
+
+  function readLensFromUrl(): 'PHOTO' | 'TINT' | 'BB' | null {
+  const v = ($page.url.searchParams.get('lens') ?? '').trim().toUpperCase();
+
+  if (v === 'PHOTO') return 'PHOTO';
+  if (v === 'TINT') return 'TINT';
+  if (v === 'BB') return 'BB';
+
+  return null;
+}
 
   function isReadyCategory(): boolean {
     return $page.params.category === 'ready';
@@ -109,7 +117,7 @@
   }
 
   let diopterIndex = new Map<string, Set<string>>();
-  let singleColumn = true;
+  
 
 
   $: {
@@ -126,6 +134,16 @@
   }
 
   let activeRange: FrameWidthRangeKey = readRangeFromUrl();
+  let genderFilter = readGenderFromUrl();
+
+  let lensFilter = readLensFromUrl();
+
+function readGenderFromUrl(): 'all' | 'female' | 'male' {
+  const v = $page.url.searchParams.get('gf');
+  if (v === 'female') return 'female';
+  if (v === 'male') return 'male';
+  return 'all';
+}
   let notice: string | null = readNoticeFromUrl();
 
   $: {
@@ -133,22 +151,57 @@
     if (nextNotice !== notice) notice = nextNotice;
   }
 
+ 
   $: diopter = readDiopterFromUrl();
 
+  
   $: returnUrl = $page.url.searchParams.get('return')?.trim() || null;
 
   $: returnModelId = $page.url.searchParams.get('returnModelId')?.trim() || null;
 
 
 
-  // base width filter (existing behavior)
-  $: widthFiltered = filterByFrameWidth(data.items, activeRange);
+  // 1. фільтр по статі
+$: genderFiltered =
+  genderFilter === 'all'
+    ? data.items
+    : data.items.filter((item) => {
+        const g = (item.gender || '').trim().toLowerCase();
 
-  // Phase 3 diopter filter (ready-only)
-  $: visibleItems =
-    isReadyCategory() && diopter
-      ? widthFiltered.filter((item) => diopterContains(item.modelId, diopter))
-      : widthFiltered;
+        const isUnisex =
+          g === 'унісекс' || g === 'unisex' || g === 'унисекс';
+
+        const isFemale =
+          g === 'жіноча' || g === 'женская' || g === 'female' || g === 'w';
+
+        const isMale =
+          g === 'чоловіча' || g === 'мужская' || g === 'male' || g === 'm';
+
+        if (genderFilter === 'female') {
+          return isFemale || isUnisex;
+        }
+
+        if (genderFilter === 'male') {
+          return isMale || isUnisex;
+        }
+
+        return true;
+      });
+
+// 2. фільтр по ширині
+$: widthFiltered = filterByFrameWidth(genderFiltered, activeRange);
+
+// 3. фільтр по типу лінз
+$: lensFiltered =
+  lensFilter === null
+    ? widthFiltered
+    : widthFiltered.filter((item) => item.TypeLens === lensFilter);
+
+// 3. фільтр по діоптрії
+$: visibleItems =
+  isReadyCategory() && diopter
+    ? lensFiltered.filter((item) => diopterContains(item.modelId, diopter))
+    : lensFiltered;
 
   function setRange(key: FrameWidthRangeKey): void {
     activeRange = key;
@@ -163,6 +216,28 @@
   function showAll(): void {
     setRange('ALL');
   }
+
+  function setGenderFilter(v: 'all' | 'female' | 'male') {
+  genderFilter = v;
+
+  const url = new URL($page.url);
+
+  if (v === 'all') url.searchParams.delete('gf');
+  else url.searchParams.set('gf', v);
+
+  goto(url.pathname + url.search, { replaceState: true, noScroll: true });
+}
+
+function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
+  lensFilter = v;
+
+  const url = new URL($page.url);
+
+  if (v === null) url.searchParams.delete('lens');
+  else url.searchParams.set('lens', v);
+
+  goto(url.pathname + url.search, { replaceState: true, noScroll: true });
+}
 
   function onKeyActivate(e: KeyboardEvent, fn: () => void): void {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -209,6 +284,7 @@
   }
 
   onMount(() => {
+    showGalleryViewToggle.set(true);
     if (!browser) return;
 
     activeRange = readRangeFromUrl();
@@ -247,7 +323,9 @@
       });
     }
 
+    
     return () => {
+      showGalleryViewToggle.set(false);
       window.removeEventListener('popstate', onPopState);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('beforeunload', onBeforeUnload);
@@ -267,71 +345,90 @@
 
 
   <div class="gallery-toolbar">
-  <div class="filter-header">
-    <div class="filter-label">Ширина оправи (мм)</div>
-
-    {#each FRAME_WIDTH_RANGES as r (r.key)}
-      {#if r.key === 'ALL'}
-        <div
-          role="button"
-          tabindex="0"
-          class="filter-item filter-item--header"
-
-          class:selected={activeRange === r.key}
-          aria-pressed={activeRange === r.key}
-          on:click={() => setRange(r.key)}
-          on:keydown={(e) => onKeyActivate(e, () => setRange(r.key))}
-        >
-          {r.label}
-        </div>
-      {/if}
-    {/each}
-  </div>
-
-
-
-
-
-    <div class="filters" aria-label="Фільтр ширини оправи">
-  {#each FRAME_WIDTH_RANGES as r (r.key)}
-    {#if r.key !== 'ALL'}
-      <div
-        role="button"
-        tabindex="0"
-        class="filter-item"
-        class:selected={activeRange === r.key}
-        aria-pressed={activeRange === r.key}
-        on:click={() => setRange(r.key)}
-        on:keydown={(e) => onKeyActivate(e, () => setRange(r.key))}
-      >
-        {r.label}
-      </div>
-    {/if}
-  {/each}
-</div>
-
-
-
-
-    <div class="toolbar-row">
-  <div class="results-count">
-    Показано: <strong>{visibleItems.length}</strong>
-  </div>
+  <div class="filters" aria-label="Фільтр типу лінз">
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === null}
+    on:click={() => setLensFilter(null)}
+  >
+    Всі
+  </button>
 
   <button
-  type="button"
-  class="view-toggle"
-  on:click={() => (singleColumn = !singleColumn)}
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'PHOTO'}
+    on:click={() => setLensFilter('PHOTO')}
+  >
+    Хамелеони
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'TINT'}
+    on:click={() => setLensFilter('TINT')}
+  >
+    Тоновані
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'BB'}
+    on:click={() => setLensFilter('BB')}
+  >
+    Блюблокери
+  </button>
+</div>
+  <div class="filter-header">
+  <!-- 🔑 ФІЛЬТР СТАТІ -->
+<div class="filters" aria-label="Фільтр статі">
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={genderFilter === 'all'}
+    on:click={() => setGenderFilter('all')}
+  >
+    Всі
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={genderFilter === 'female'}
+    on:click={() => setGenderFilter('female')}
+  >
+    Жіночі
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={genderFilter === 'male'}
+    on:click={() => setGenderFilter('male')}
+  >
+    Чоловічі
+  </button>
+</div>
+    
+<select
+  class="width-select"
+  aria-label="Фільтр ширини оправи"
+  bind:value={activeRange}
+  on:change={(e) => setRange((e.currentTarget as HTMLSelectElement).value as FrameWidthRangeKey)}
 >
-  {singleColumn ? 'Показати 2 колонки' : 'Показати 1 колонку'}
+  {#each FRAME_WIDTH_RANGES as r (r.key)}
+    <option value={r.key}>{r.label}</option>
+  {/each}
+</select>
+  </div>
+    
+    <div class="toolbar-row">
+  
 
-
-
-</button>
-
-
-
-      
+        
     </div>
   </div>
 
@@ -359,7 +456,7 @@
   {:else}
     <div
   class="gallery-grid"
-  class:single={singleColumn}
+  class:single={$gallerySingleColumn}
   aria-label="Галерея моделей"
 >
 
@@ -427,8 +524,8 @@
   }
 
   .gallery {
-    padding: 16px 16px 120px;
-  }
+  padding: 12px 16px 120px;
+}
 
   .notice {
     margin: 10px 0 12px;
@@ -443,10 +540,10 @@
   /* STICKY HEADER (залишається хедером) */
   .gallery-toolbar {
     position: sticky;
-    top: 0;
+    top: 44px;
     z-index: 5;
 
-    padding: 12px 16px;
+    padding: 8px 16px;
     margin: 0 -16px 12px;
 
     background: rgba(251, 247, 241, 0.96);
@@ -454,35 +551,43 @@
     backdrop-filter: blur(8px);
 
     display: grid;
-    gap: 12px;
+    gap: 8px;
   }
 
-  .filter-header {
-    display: grid;
-    grid-template-columns: 1fr auto !important;
-    align-items: center;
-    column-gap: 12px;
-  }
+ .filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
-  .filter-label {
-    margin-bottom: 0;
-    font-size: 18px;
-    line-height: 1.2;
-    font-weight: 900;
-    color: #111;
-    white-space: nowrap;
-    min-width: 0;
-  }
+    .width-select {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 999px;
+  padding: 10px 14px;
+
+  font-weight: 900;
+  font-size: 16px;
+
+  background: #fff;
+  color: #111;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+
+  appearance: none;
+  cursor: pointer;
+}
 
   .filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
 
-    scrollbar-width: none;
-  }
+  overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
 
   .filters::-webkit-scrollbar {
     display: none;
@@ -513,38 +618,15 @@
     box-shadow: 0 8px 18px rgba(0,0,0,0.16);
   }
 
-  .filter-item--header {
-    display: inline-flex;
-    align-items: center;
-    width: auto;
-    margin-left: auto;
-    white-space: nowrap;
-  }
-
+  
   .toolbar-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 12px;
   }
 
-  .results-count {
-    font-size: 15px;
-    color: #333;
-    font-weight: 800;
-  }
-
-  .view-toggle {
-    border: 1px solid rgba(0,0,0,0.14);
-    background: #fff;
-    border-radius: 999px;
-    padding: 10px 14px;
-    font-weight: 900;
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
-
+    
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

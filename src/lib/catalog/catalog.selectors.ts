@@ -20,7 +20,7 @@ export type FrameWidthRange = {
 };
 
 export const FRAME_WIDTH_RANGES: readonly FrameWidthRange[] = [
-  { key: 'ALL', label: 'Показати всі', min: null, max: null },
+  { key: 'ALL', label: 'Ширина', min: null, max: null },
 
   { key: 'LT_130', label: 'до 130', min: null, max: 130 },
   { key: 'R_131_140', label: '131–140', min: 131, max: 140 },
@@ -100,13 +100,17 @@ export function filterByCategoryAndGender(
   const g = norm(genderParam);
 
   const byCategory =
-    c === 'ready'
-      ? items.filter((i) => hasReadyDiopters(i))
-      : items.filter((i) => !hasReadyDiopters(i));
+  c === 'ready'
+    ? items.filter((i) => hasReadyDiopters(i))
+    : items.filter((i) => !hasReadyDiopters(i));
 
-  if (g === 'унісекс' || g === 'unisex' || g === 'унисекс') {
-    return byCategory.filter((i) => isUnisexValue(i.gender));
-  }
+if (g === 'all') {
+  return byCategory;
+}
+
+if (g === 'унісекс' || g === 'unisex' || g === 'унисекс') {
+  return byCategory.filter((i) => isUnisexValue(i.gender));
+}
 
   if (g === 'жіноча' || g === 'женская' || g === 'female' || g === 'w') {
     return byCategory.filter((i) => isFemaleValue(i.gender) || isUnisexValue(i.gender));
