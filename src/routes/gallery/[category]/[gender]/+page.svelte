@@ -16,6 +16,7 @@
   import { getPublicModelId } from "$lib/catalog/publicModelId";
   import { getLensTypeLabel } from "$lib/catalog/lensTypeLabel";
   import { getLensTypeVendorTag } from "$lib/catalog/lensTypeVendorTag";
+  import { gallerySingleColumn, showGalleryViewToggle } from '$lib/stores/galleryView';
 
 
 
@@ -116,7 +117,7 @@
   }
 
   let diopterIndex = new Map<string, Set<string>>();
-  let singleColumn = true;
+  
 
 
   $: {
@@ -283,6 +284,7 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   }
 
   onMount(() => {
+    showGalleryViewToggle.set(true);
     if (!browser) return;
 
     activeRange = readRangeFromUrl();
@@ -321,7 +323,9 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
       });
     }
 
+    
     return () => {
+      showGalleryViewToggle.set(false);
       window.removeEventListener('popstate', onPopState);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('beforeunload', onBeforeUnload);
@@ -422,24 +426,9 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   </div>
     
     <div class="toolbar-row">
-  <div class="results-count">
-    Показано: <strong>{visibleItems.length}</strong>
-  </div>
+  
 
-  <button
-  type="button"
-  class="view-toggle"
-  on:click={() => (singleColumn = !singleColumn)}
->
-  {singleColumn ? 'Показати 2 колонки' : 'Показати 1 колонку'}
-
-
-
-</button>
-
-
-
-      
+        
     </div>
   </div>
 
@@ -467,7 +456,7 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   {:else}
     <div
   class="gallery-grid"
-  class:single={singleColumn}
+  class:single={$gallerySingleColumn}
   aria-label="Галерея моделей"
 >
 
@@ -633,27 +622,11 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   .toolbar-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 12px;
   }
 
-  .results-count {
-    font-size: 15px;
-    color: #333;
-    font-weight: 800;
-  }
-
-  .view-toggle {
-    border: 1px solid rgba(0,0,0,0.14);
-    background: #fff;
-    border-radius: 999px;
-    padding: 10px 14px;
-    font-weight: 900;
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
-
+    
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
