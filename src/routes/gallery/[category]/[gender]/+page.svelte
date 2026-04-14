@@ -524,8 +524,8 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   }
 
   .gallery {
-    padding: 16px 16px 120px;
-  }
+  padding: 12px 16px 120px;
+}
 
   .notice {
     margin: 10px 0 12px;
@@ -540,10 +540,10 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   /* STICKY HEADER (залишається хедером) */
   .gallery-toolbar {
     position: sticky;
-    top: 0;
+    top: 44px;
     z-index: 5;
 
-    padding: 12px 16px;
+    padding: 8px 16px;
     margin: 0 -16px 12px;
 
     background: rgba(251, 247, 241, 0.96);
@@ -551,7 +551,7 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
     backdrop-filter: blur(8px);
 
     display: grid;
-    gap: 12px;
+    gap: 8px;
   }
 
  .filter-header {
