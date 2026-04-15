@@ -48,12 +48,7 @@
 
 function buildMessengerPrefillUrl(ref: string): string {
 
-  const manager = $page.url.searchParams.get('manager') || 'okuliarko';
-
-  const base =
-    manager === 'plusminus'
-      ? 'https://m.me/123853797474820'
-      : 'https://m.me/101402489688578';
+  const base = 'https://m.me/110514481874624';
 
   const url = new URL(base);
 
