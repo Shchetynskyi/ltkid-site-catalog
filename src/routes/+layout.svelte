@@ -2,8 +2,35 @@
   import '../app.css';
   import { page } from '$app/stores';
   import { gallerySingleColumn, showGalleryViewToggle } from '$lib/stores/galleryView';
+  import { onMount } from 'svelte';
 
   $: isHome = $page.url.pathname === '/';
+
+  onMount(() => {
+  const w = window as typeof window & { fbq?: (...args: any[]) => void; _fbq?: (...args: any[]) => void };
+
+  if (w.fbq) {
+    w.fbq('track', 'PageView');
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+  document.head.appendChild(script);
+
+  w.fbq = function (...args: any[]) {
+    (w.fbq as any).queue.push(args);
+  };
+
+  (w.fbq as any).queue = [];
+  (w.fbq as any).loaded = true;
+  (w.fbq as any).version = '2.0';
+  w._fbq = w.fbq;
+
+  w.fbq('init', '1341189940121676');
+  w.fbq('track', 'PageView');
+});
 </script>
 
 <header class="site-header">
