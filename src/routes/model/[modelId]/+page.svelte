@@ -224,7 +224,7 @@ function buildMessengerPrefillUrl(ref: string): string {
       });
 
       window.location.href = buildMessengerPrefillUrl(ref);
-    }, 1000);
+    }, 300);
   }}
 >
   Звʼязатися з менеджером
