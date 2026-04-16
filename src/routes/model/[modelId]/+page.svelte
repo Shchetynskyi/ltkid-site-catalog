@@ -208,6 +208,8 @@ function buildMessengerPrefillUrl(ref: string): string {
   type="button"
   class="manager-link"
   on:click={() => {
+    (window as any).fbq && (window as any).fbq('track', 'Contact');
+
     const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
     const ref = buildMc6Ref();
 
