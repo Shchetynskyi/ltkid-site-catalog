@@ -208,23 +208,27 @@ function buildMessengerPrefillUrl(ref: string): string {
   type="button"
   class="manager-link"
   on:click={() => {
-    (window as any).fbq && (window as any).fbq('track', 'Contact');
+    // Meta Pixel
+    if ((window as any).fbq) {
+      (window as any).fbq('track', 'Contact');
+    }
 
+    // Дані
     const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
     const ref = buildMc6Ref();
 
-    setTimeout(() => {
-      managerLeadPayload.set({
-        ModelID: item.modelId,
-        MarketingTitle: item.marketingTitle || item.modelId,
-        SitePriceUAH: getPriceLabel(item.SitePriceUAH),
-        Image: item.mainImage || '',
-        ref,
-        ...(diopter ? { DiopterContext: diopter } : {})
-      });
+    // Payload
+    managerLeadPayload.set({
+      ModelID: item.modelId,
+      MarketingTitle: item.marketingTitle || item.modelId,
+      SitePriceUAH: getPriceLabel(item.SitePriceUAH),
+      Image: item.mainImage || '',
+      ref,
+      ...(diopter ? { DiopterContext: diopter } : {})
+    });
 
-      window.location.href = buildMessengerPrefillUrl(ref);
-    }, 300);
+    // Редірект
+    window.location.href = buildMessengerPrefillUrl(ref);
   }}
 >
   Звʼязатися з менеджером
