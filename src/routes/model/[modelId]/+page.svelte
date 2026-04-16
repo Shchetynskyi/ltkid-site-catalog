@@ -208,14 +208,12 @@ function buildMessengerPrefillUrl(ref: string): string {
   type="button"
   class="manager-link"
   on:click={() => {
-    // 1. Трекінг події
     (window as any).fbq && (window as any).fbq('track', 'Contact');
 
-    // 2. Затримка перед переходом
-    setTimeout(() => {
-      const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
-      const ref = buildMc6Ref();
+    const diopter = $page.url.searchParams.get('diopter')?.trim() || '';
+    const ref = buildMc6Ref();
 
+    setTimeout(() => {
       managerLeadPayload.set({
         ModelID: item.modelId,
         MarketingTitle: item.marketingTitle || item.modelId,
@@ -224,15 +222,15 @@ function buildMessengerPrefillUrl(ref: string): string {
         ref,
         ...(diopter ? { DiopterContext: diopter } : {})
       });
+
+      window.location.href = buildMessengerPrefillUrl(ref);
     }, 300);
   }}
 >
   Звʼязатися з менеджером
 </button>
 
-    
-window.location.href = buildMessengerPrefillUrl(ref);
-
+   
     
 </div>
 
