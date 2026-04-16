@@ -15,7 +15,8 @@
 </script>
 
 <section class="entry">
-  <h1>Підбір окулярів за вашим зором</h1>
+  <h1>Готові ОКУЛЯРИ поштою! Післяплата!</h1>
+  <h1>Які вам потрібні?</h1>
 
   <button on:click={goPlus}>
     Для читання (+ плюс)
@@ -26,7 +27,7 @@
   </button>
 
   <button on:click={goPrescription}>
-    За рецептом від 700 грн
+    За своїм рецептом
   </button>
 </section>
 
