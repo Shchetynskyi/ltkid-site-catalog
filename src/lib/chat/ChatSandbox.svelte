@@ -30,11 +30,11 @@
     response = null;
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/chat-test', {
+      const res = await fetch(`${import.meta.env.PUBLIC_CHAT_TEST_API_URL}/chat-test`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Sandbox-Token': 'local-test-token'
+          'X-Sandbox-Token': import.meta.env.PUBLIC_CHAT_TEST_SANDBOX_TOKEN
         },
         body: JSON.stringify({
           session_id: sessionId,
