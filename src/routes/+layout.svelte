@@ -1,12 +1,10 @@
-<script lang="ts">
+﻿<script lang="ts">
   import '../app.css';
   import { page } from '$app/stores';
   import { gallerySingleColumn, showGalleryViewToggle } from '$lib/stores/galleryView';
-  import { onMount } from 'svelte';
+  import ChatSandbox from '$lib/chat/ChatSandbox.svelte';
 
   $: isHome = $page.url.pathname === '/';
-
-  
 </script>
 
 <header class="site-header">
@@ -30,6 +28,8 @@
 </header>
 
 <slot />
+
+<ChatSandbox />
 
 <style>
   .site-header {
