@@ -283,6 +283,10 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
     return s.toUpperCase();
   }
 
+  function galleryItemKey(item: GalleryItem, index: number): string {
+    return `${item.modelId || 'model'}:${item.TypeLens || 'lens'}:${index}`;
+  }
+
   onMount(() => {
     showGalleryViewToggle.set(true);
     if (!browser) return;
@@ -460,7 +464,7 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   aria-label="Галерея моделей"
 >
 
-     {#each visibleItems as item (item.modelId)}
+     {#each visibleItems as item, index (galleryItemKey(item, index))}
   <a
     class="product-card"
     href={
