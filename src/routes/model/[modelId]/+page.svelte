@@ -48,7 +48,7 @@
 
 function buildMessengerPrefillUrl(ref: string): string {
 
-  const base = 'https://m.me/110514481874624';
+  const base = normalizeBase(MANAGER_LINKS.plusminus);
 
   const url = new URL(base);
 
