@@ -430,9 +430,13 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   </div>
     
     <div class="toolbar-row">
-  
-
-        
+      <button
+        type="button"
+        class="view-toggle"
+        on:click={() => gallerySingleColumn.update((v) => !v)}
+      >
+        {$gallerySingleColumn ? '2 колонки' : '1 колонка'}
+      </button>
     </div>
   </div>
 
@@ -628,6 +632,17 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
+  }
+
+  .view-toggle {
+    border: 1px solid rgba(0,0,0,0.14);
+    background: #fff;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   }
 
     
