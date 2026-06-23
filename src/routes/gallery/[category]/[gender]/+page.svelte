@@ -417,27 +417,27 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   </button>
 </div>
     
-<select
-  class="width-select"
-  aria-label="Фільтр ширини оправи"
-  bind:value={activeRange}
-  on:change={(e) => setRange((e.currentTarget as HTMLSelectElement).value as FrameWidthRangeKey)}
->
-  {#each FRAME_WIDTH_RANGES as r (r.key)}
-    <option value={r.key}>{r.label}</option>
-  {/each}
-</select>
+<div class="toolbar-actions">
+  <select
+    class="width-select"
+    aria-label="Фільтр ширини оправи"
+    bind:value={activeRange}
+    on:change={(e) => setRange((e.currentTarget as HTMLSelectElement).value as FrameWidthRangeKey)}
+  >
+    {#each FRAME_WIDTH_RANGES as r (r.key)}
+      <option value={r.key}>{r.label}</option>
+    {/each}
+  </select>
+
+  <button
+    type="button"
+    class="view-toggle"
+    on:click={() => gallerySingleColumn.update((v) => !v)}
+  >
+    {$gallerySingleColumn ? '2 колонки' : '1 колонка'}
+  </button>
+</div>
   </div>
-    
-    <div class="toolbar-row">
-      <button
-        type="button"
-        class="view-toggle"
-        on:click={() => gallerySingleColumn.update((v) => !v)}
-      >
-        {$gallerySingleColumn ? '2 колонки' : '1 колонка'}
-      </button>
-    </div>
   </div>
 
   {#if visibleItems.length === 0}
@@ -563,11 +563,23 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
   }
 
  .filter-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
+
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+
+  .filter-header .filters {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
 
     .width-select {
   border: 1px solid rgba(0, 0, 0, 0.14);
@@ -626,14 +638,6 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
     box-shadow: 0 8px 18px rgba(0,0,0,0.16);
   }
 
-  
-  .toolbar-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-  }
-
   .view-toggle {
     border: 1px solid rgba(0,0,0,0.14);
     background: #fff;
@@ -642,10 +646,10 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
     font-weight: 900;
     font-size: 15px;
     cursor: pointer;
+    white-space: nowrap;
     box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   }
 
-    
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
