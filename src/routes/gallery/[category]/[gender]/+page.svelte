@@ -69,12 +69,15 @@
     return t ? t : null;
   }
 
-  function readLensFromUrl(): 'PHOTO' | 'TINT' | 'BB' | null {
+  type LensFilter = 'PHOTO' | 'TINT' | 'BB' | 'NONE';
+
+  function readLensFromUrl(): LensFilter | null {
   const v = ($page.url.searchParams.get('lens') ?? '').trim().toUpperCase();
 
   if (v === 'PHOTO') return 'PHOTO';
   if (v === 'TINT') return 'TINT';
   if (v === 'BB') return 'BB';
+  if (v === 'NONE') return 'NONE';
 
   return null;
 }
@@ -228,7 +231,7 @@ $: visibleItems =
   goto(url.pathname + url.search, { replaceState: true, noScroll: true });
 }
 
-function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
+function setLensFilter(v: LensFilter | null) {
   lensFilter = v;
 
   const url = new URL($page.url);
@@ -357,6 +360,15 @@ function setLensFilter(v: 'PHOTO' | 'TINT' | 'BB' | null) {
     on:click={() => setLensFilter(null)}
   >
     Всі
+  </button>
+
+  <button
+    type="button"
+    class="filter-item"
+    class:selected={lensFilter === 'NONE'}
+    on:click={() => setLensFilter('NONE')}
+  >
+    Без покриття
   </button>
 
   <button
